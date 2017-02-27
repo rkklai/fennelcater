@@ -1,0 +1,79 @@
+<div ng-controller="IngredientsCtrl">
+<div ui-content-for="title">
+  <span>Total Ingredients: {{ ingredients.length }}</span>
+</div>
+
+<div class="scrollable">
+ <div class="scrollable-content section">
+   
+  <form   role="form" ng-submit='addIngredient()'>
+    <fieldset>
+      <legend>New Ingredient</legend>
+        <div class="form-group has-success has-feedback">
+         <input required class="form-control"  type="text"
+                 ng-model="iname"
+                 placeholder="Ingredient name">
+          <input required type="text"
+                 ng-model="ingredientUnit"
+                 class="form-control"
+                 placeholder="Unit">
+          <input required type="number" step="0.01"
+                 ng-model="ingredientPrice"
+                 ng-model-options="{ allowInvalid: false }"
+		 class="form-control"
+                 placeholder="Price">
+  	</div>
+    </fieldset>
+
+    <button class="btn btn-primary btn-block" ng-disabled="! (iname && ingredientUnit && ingredientPrice )">
+      Add
+    </button>
+
+    <div ui-content-for="navbarAction">
+      <a class="btn" ng-click="addIngredient()">Add</a>
+    </div>
+
+  </form>
+
+<hr>
+<style>
+input.searchWarning {background-color: yellow;}
+</style>
+<div class="alert alert-warning alert-dismissable fade in" ng-show="searchWarn">
+    <button class="close" data-dismiss="alert" aria-label="close" ng-click="searchWarn=0">&times;</button>
+    <strong>Warning!</strong> Duplicate ingredient: please edit it in the table or delete it first.
+</div>
+
+<input type="text" class="form-control" placeholder="Search" ng-model="search" ng-class="{searchWarning: searchWarn}">
+    <button class="btn btn-default" ng-click="clearSearch()">
+      Clear
+    </button>
+<hr>
+  <div class="table-responsive">          
+  <table class="table">
+    <thead>
+      <tr>
+        <th ng-click="orderByMe('name')">Ingredient</th>
+        <th ng-click="orderByMe('unit')">Unit</th>
+        <th ng-click="orderByMe('price')" class="text-right">Price($)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="ingredient in ingredients | filter : search | orderBy:myOrderBy:reverse">
+        <td>{{ingredient.name}}</td>
+        <td>{{ingredient.unit}}</td>
+        <td><input class="col-xs-3 form-control text-right" 
+		required
+		type="number" step="0.01"  
+		ng-model="ingredient.price" 
+		ng-model-options="{ allowInvalid: false }"
+		ng-blur="ingredients.$save(ingredient)"></td>
+        <td class="text-right"><button class="btn btn-danger" ng-click="ingredients.$remove(ingredient)">Delete</button></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+</div>
+</div>
+</div>
