@@ -1,15 +1,20 @@
 /* eslint no-alert: 0 */
 
 
-app.controller('IngredientsCtrl',  function($scope, $firebaseArray) {
-  var ref = firebase.database().ref().child("ingredients");
+app.controller('IngredientsCtrl',  function($scope, $firebaseArray, AngularDB) {
+//  var ref = firebase.database().ref().child("ingredients");
 
   // create a synchronized array
   // click on `index.html` above to see it used in the DOM!
-  $scope.ingredients = $firebaseArray(ref);
+ // $scope.ingredients = $firebaseArray(ref);
+  $scope.ingredients = AngularDB.ingredients();
   $scope.searchWarn = 0;
   $scope.addedIngredient = 0;
   $scope.deleteIngredient ="not yet";
+
+  $scope.remove = function(x) {
+    AngularDB.remove(x);
+  }
 
   $scope.addIngredient = function() {
     var lowerName = $scope.iname.toLowerCase();
@@ -24,20 +29,23 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray) {
        $scope.search = $scope.iname;
        $scope.searchWarn = 1;
     } else {
-    $scope.ingredients.$add({
-      name: $scope.iname,
-      unit: $scope.ingredientUnit,
-      price: $scope.ingredientPrice
-     }).then(function() {
-      $scope.addedIngredientName = $scope.iname;
-
-       $scope.iname = "";
-       $scope.ingredientUnit = "";
-       $scope.ingredientPrice = "";
-       $scope.addedIngredient = 1;
-     });
+      AngularDB.add({
+	      	name: $scope.iname,
+      		unit: $scope.ingredientUnit,
+      		price: $scope.ingredientPrice
+     	}).then(function() {
+      		$scope.addedIngredientName = $scope.iname;
+	      	$scope.iname = "";
+       		$scope.ingredientUnit = "";
+      		$scope.ingredientPrice = "";
+       		$scope.addedIngredient = 1;
+     	});
     }
   };
+
+  $scope.save = function(x) {
+	return AngularDB.save(x);
+  }
 
   $scope.myOrderBy = "name";
   var nameCount = 0;
@@ -61,6 +69,10 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray) {
   }  
   
   $scope.setDeleteIngredient = function(d) {
+  // reset values
+  $scope.searchWarn = 0;
+  $scope.addedIngredient = 0;
+
     $scope.deleteIngredient = d;
   }
 

@@ -44,6 +44,27 @@ app.config(function($routeProvider) {
   $routeProvider.when('/drag2', {templateUrl: 'drag2.html', reloadOnSearch: false});
 });
 
+app.service("AngularDB", function($firebaseArray) {
+  var ref = firebase.database().ref().child("ingredients");
+  var ingredientsDB = $firebaseArray(ref);    
+   
+  this.remove = function(x) {
+    return ingredientsDB.$remove(x);
+  }
+
+  this.add = function(x) {
+    return ingredientsDB.$add(x);
+  }
+ 
+  this.save = function(x) {
+    return ingredientsDB.$save(x);
+  }
+
+  this.ingredients = function() {
+    return ingredientsDB;
+  }
+});
+
 //
 // `$touch example`
 //
