@@ -3,6 +3,8 @@
   <span>Total Ingredients: {{ ingredients.length }}</span>
 </div>
 
+
+
 <div class="scrollable">
  <div class="scrollable-content section"> 
   <form class="form"  role="form" ng-submit='addIngredient()'>
@@ -40,11 +42,11 @@ input.searchWarning {background-color: yellow;}
 </style>
 <div class="alert alert-success alert-dismissable fade in" ng-show="addedIngredient">
     <button class="close" data-dismiss="alert" aria-label="close" ng-click="addedIngredient=0">&times;</button>
-    <strong>Success!</strong> Added ingredient {{ addedIngredientName }}.
+    <strong>Success!</strong> Added ingredient {{ addedIngredientName }}
 </div>
 <div class="alert alert-warning alert-dismissable fade in" ng-show="searchWarn">
     <button class="close" data-dismiss="alert" aria-label="close" ng-click="searchWarn=0">&times;</button>
-    <strong>Warning!</strong> Duplicate ingredient {{ iname }}: please edit it in the table or delete it first.
+    <strong>Warning!</strong> Duplicate ingredient {{ iname }}: please edit it in the table or delete it first
 </div>
 
 <input type="text" class="form-control" placeholder="Search" ng-model="search" ng-class="{searchWarning: searchWarn}">
@@ -70,10 +72,35 @@ input.searchWarning {background-color: yellow;}
 		ng-model="ingredient.price" 
 		ng-model-options="{ allowInvalid: false }"
 		ng-blur="ingredients.$save(ingredient)"></td>
-        <td class="text-right"><button class="btn btn-danger" ng-click="ingredients.$remove(ingredient)">Delete</button></td>
+        <td class="text-right"><button class="btn btn-danger" ui-turn-on="modal1" ng-click="setDeleteIngredient(ingredient)">Delete</button></td>
       </tr>
     </tbody>
   </table>
 </div>
+</div>
+
+
+<div ui-content-for="modals">
+<div class="modal" ui-if="modal1" ui-shared-state="modal1">
+  <div class="modal-backdrop in"></div>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button class="close" 
+                ui-turn-off="modal1">&times;</button>
+        <h4 class="modal-title">Confirm delete</h4>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure to delete this {{ deleteIngredient.name + ' with a unit of ' + deleteIngredient.unit }}?</p>
+      </div>
+      <div class="modal-footer">
+        <button ui-turn-off="modal1" class="btn btn-default">Cancel</button>
+        <button ui-turn-off="modal1" class="btn btn-danger" ng-click="ingredients.$remove(deleteIngredient)">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 </div>
 </div>

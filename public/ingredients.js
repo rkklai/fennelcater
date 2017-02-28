@@ -9,6 +9,7 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray) {
   $scope.ingredients = $firebaseArray(ref);
   $scope.searchWarn = 0;
   $scope.addedIngredient = 0;
+  $scope.deleteIngredient ="not yet";
 
   $scope.addIngredient = function() {
     var lowerName = $scope.iname.toLowerCase();
@@ -20,7 +21,6 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray) {
 
     var found = $scope.ingredients.find( x => x.name.toLowerCase() == lowerName  && x.unit.toLowerCase() == lowerUnit );
     if ( found ) {
-//       alert( "The ingredient alreay exists. Please edit it in the table or delete it first" );
        $scope.search = $scope.iname;
        $scope.searchWarn = 1;
     } else {
@@ -59,6 +59,10 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray) {
 
     $scope.myOrderBy = x;
   }  
+  
+  $scope.setDeleteIngredient = function(d) {
+    $scope.deleteIngredient = d;
+  }
 
   $scope.clearSearch = function() {
     $scope.search = "";
