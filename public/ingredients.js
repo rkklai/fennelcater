@@ -8,10 +8,15 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray) {
   // click on `index.html` above to see it used in the DOM!
   $scope.ingredients = $firebaseArray(ref);
   $scope.searchWarn = 0;
+  $scope.addedIngredient = 0;
 
   $scope.addIngredient = function() {
     var lowerName = $scope.iname.toLowerCase();
     var lowerUnit = $scope.ingredientUnit.toLowerCase();
+  // reset values
+  $scope.searchWarn = 0;
+  $scope.addedIngredient = 0;
+
 
     var found = $scope.ingredients.find( x => x.name.toLowerCase() == lowerName  && x.unit.toLowerCase() == lowerUnit );
     if ( found ) {
@@ -24,9 +29,12 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray) {
       unit: $scope.ingredientUnit,
       price: $scope.ingredientPrice
      }).then(function() {
+      $scope.addedIngredientName = $scope.iname;
+
        $scope.iname = "";
        $scope.ingredientUnit = "";
        $scope.ingredientPrice = "";
+       $scope.addedIngredient = 1;
      });
     }
   };
@@ -55,6 +63,7 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray) {
   $scope.clearSearch = function() {
     $scope.search = "";
     $scope.searchWarn = 0;
+    $scope.addedIngredient = 0;
   }
 });
 
