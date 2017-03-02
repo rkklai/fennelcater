@@ -18,22 +18,24 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray, AngularDB) {
 
   $scope.addIngredient = function() {
     var lowerName = $scope.iname.toLowerCase();
-    var lowerQuantity = $scope.ingredientQuantity.toLowerCase();
     var lowerUnit = $scope.ingredientUnit.toLowerCase();
     var lowerStore = $scope.ingredientStore.toLowerCase();
  
     // reset values
     $scope.searchWarn = 0;
     $scope.addedIngredient = 0;
+    $scope.addedIngredientName = "";
+    $scope.duplicateIngredientName = "";
 
 
     var found = $scope.ingredients.find( x => x.name.toLowerCase() == lowerName  
-              && x.quantity.toLowerCase() == lowerQuantity 
+              && x.quantity == $scope.ingredientQuantity 
               && x.unit.toLowerCase() == lowerUnit 
               && x.store.toLowerCase() == lowerStore 
 	);
     if ( found ) {
        $scope.search = $scope.iname;
+       $scope.duplicateIngredientName = $scope.iname + " ($" + $scope.ingredientPrice + "/" + $scope.ingredientUnit + "@" + $scope.ingredientStore + ")";
        $scope.searchWarn = 1;
     } else {
       if ( ! $scope.ingredientStore ) {
@@ -47,13 +49,13 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray, AngularDB) {
                 store: $scope.ingredientStore,
       		price: $scope.ingredientPrice
      	}).then(function() {
-      		$scope.addedIngredientName = $scope.iname;
+      		$scope.addedIngredientName = $scope.iname + " ($" + $scope.ingredientPrice + "/" + $scope.ingredientUnit + "@" + $scope.ingredientStore + ")";
+                $scope.addedIngredient = 1;
 	      	$scope.iname = "";
        		$scope.ingredientQuantity = "";
        		$scope.ingredientUnit = "";
                 $scope.ingredientStore = "";
       		$scope.ingredientPrice = "";
-       		$scope.addedIngredient = 1;
      	});
     }
   };
@@ -89,9 +91,9 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray, AngularDB) {
   }  
   
   $scope.setDeleteIngredient = function(d) {
-  // reset values
-  $scope.searchWarn = 0;
-  $scope.addedIngredient = 0;
+    // reset values
+    $scope.searchWarn = 0;
+    $scope.addedIngredient = 0;
 
     $scope.deleteIngredient = d;
   }

@@ -14,10 +14,11 @@
          <input required class="form-control"  type="text"
                  ng-model="iname"
                  placeholder="Ingredient name">
-          <input required type="text"
+          <input required type="number" step="0.01"
                  ng-model="ingredientQuantity"
+                 ng-model-options="{ allowInvalid: false }"
                  class="form-control"
-                 placeholder="Quantity">
+                 placeholder="Quantity (number)">
           <input required type="text"
                  ng-model="ingredientUnit"
                  class="form-control"
@@ -30,7 +31,7 @@
                  ng-model="ingredientPrice"
                  ng-model-options="{ allowInvalid: false }"
 		 class="form-control"
-                 placeholder="Price">
+                 placeholder="Price (number)">
   	</div>
     </fieldset>
 
@@ -49,15 +50,15 @@
 input.searchWarning {background-color: yellow;}
 </style>
 <div class="alert alert-success alert-dismissable fade in" ng-show="addedIngredient">
-    <button class="close" data-dismiss="alert" aria-label="close" ng-click="addedIngredient=0">&times;</button>
+    <button class="close" data-dismiss="alert" aria-label="close" ng-click="addedIngredient=''">&times;</button>
     <strong>Success!</strong> Added ingredient {{ addedIngredientName }}
 </div>
 <div class="alert alert-warning alert-dismissable fade in" ng-show="searchWarn">
     <button class="close" data-dismiss="alert" aria-label="close" ng-click="searchWarn=0">&times;</button>
-    <strong>Warning!</strong> Duplicate ingredient {{ iname + '(' + ingredientQuantity + ingredientUnit + '@' + ingredientStore }}): please edit it in the table or delete it first
+    <strong>Warning!</strong> Duplicate ingredient {{ duplicateIngredientName }}): please edit it in the table or delete it first
 </div>
 
-<input type="text" class="form-control" placeholder="Search (ingredient, unit, price or store)" ng-model="search" ng-class="{searchWarning: searchWarn}">
+<input type="text" class="form-control" placeholder="Search (ingredient, quantity, unit, price or store)" ng-model="search" ng-class="{searchWarning: searchWarn}">
     <button class="btn btn-default" ng-click="clearSearch()">
       Clear
     </button>
@@ -76,7 +77,8 @@ input.searchWarning {background-color: yellow;}
       <tr ng-repeat="ingredient in ingredients | filter : search | orderBy:myOrderBy:reverse">
         <td>{{ingredient.name}}</td>
         <td><input required class="form-control"
-		type="text"  
+		type="number" step="0.01"  
+		ng-model-options="{ allowInvalid: false }"
 		ng-model="ingredient.quantity" 
 		ng-blur="save(ingredient)"></td>
         <td>{{ingredient.unit}}</td>
@@ -111,7 +113,7 @@ input.searchWarning {background-color: yellow;}
         <h4 class="modal-title">Confirm delete</h4>
       </div>
       <div class="modal-body">
-        <p>Are you sure to delete this ingredient <b>{{ deleteIngredient.name }}</b> with a unit of <b>{{ deleteIngredient.unit }}</b>?</p>
+        <p>Are you sure to delete <b>{{ deleteIngredient.name + ' ($' + deleteIngredient.price + '/' + deleteIngredient.quantity + deleteIngredient.unit + '@' + deleteIngredient.store }})</b>?</p>
       </div>
       <div class="modal-footer">
         <button ui-turn-off="modal1" class="btn btn-default">Cancel</button>
