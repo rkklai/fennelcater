@@ -18,25 +18,40 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray, AngularDB) {
 
   $scope.addIngredient = function() {
     var lowerName = $scope.iname.toLowerCase();
+    var lowerQuantity = $scope.ingredientQuantity.toLowerCase();
     var lowerUnit = $scope.ingredientUnit.toLowerCase();
-  // reset values
-  $scope.searchWarn = 0;
-  $scope.addedIngredient = 0;
+    var lowerStore = $scope.ingredientStore.toLowerCase();
+ 
+    // reset values
+    $scope.searchWarn = 0;
+    $scope.addedIngredient = 0;
 
 
-    var found = $scope.ingredients.find( x => x.name.toLowerCase() == lowerName  && x.unit.toLowerCase() == lowerUnit );
+    var found = $scope.ingredients.find( x => x.name.toLowerCase() == lowerName  
+              && x.quantity.toLowerCase() == lowerQuantity 
+              && x.unit.toLowerCase() == lowerUnit 
+              && x.store.toLowerCase() == lowerStore 
+	);
     if ( found ) {
        $scope.search = $scope.iname;
        $scope.searchWarn = 1;
     } else {
+      if ( ! $scope.ingredientStore ) {
+	 $scope.ingredientStore = "";
+      }
+
       AngularDB.add({
 	      	name: $scope.iname,
+      		quantity: $scope.ingredientQuantity,
       		unit: $scope.ingredientUnit,
+                store: $scope.ingredientStore,
       		price: $scope.ingredientPrice
      	}).then(function() {
       		$scope.addedIngredientName = $scope.iname;
 	      	$scope.iname = "";
+       		$scope.ingredientQuantity = "";
        		$scope.ingredientUnit = "";
+                $scope.ingredientStore = "";
       		$scope.ingredientPrice = "";
        		$scope.addedIngredient = 1;
      	});
@@ -51,6 +66,8 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray, AngularDB) {
   var nameCount = 0;
   var unitCount = 0;
   var priceCount = 0;
+  var storeCount = 0;
+
   $scope.reverse = 0;
 
   $scope.orderByMe = function(x) {
@@ -60,6 +77,9 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray, AngularDB) {
     } else if ( x == 'unit' ) {
       unitCount = ( unitCount + 1 ) % 2;
       $scope.reverse = unitCount;
+    } else if ( x == 'store' ) {
+      storeCount = ( storeCount + 1 ) % 2;
+      $scope.reverse = storeCount;
     } else if ( x == 'price' ) {
       priceCount = ( priceCount + 1 ) % 2;
       $scope.reverse = priceCount;
