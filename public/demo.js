@@ -10,7 +10,6 @@ var app = angular.module('MobileAngularUiExamples', [
   'ngRoute',
   'mobile-angular-ui',
   'firebase',
-//  'angularfire',
   // touch/drag feature: this is from 'mobile-angular-ui.gestures.js'.
   // This is intended to provide a flexible, integrated and and
   // easy to use alternative to other 3rd party libs like hammer.js, with the
@@ -19,8 +18,22 @@ var app = angular.module('MobileAngularUiExamples', [
   'mobile-angular-ui.gestures'
 ]);
 
-app.run(function($transform) {
+// let's create a re-usable factory that generates the $firebaseAuth instance
+app.factory("Auth", ["$firebaseAuth",
+  function($firebaseAuth) {
+    return $firebaseAuth();
+  }
+]);
+
+app.run(function($transform, $rootScope, $location) {
   window.$transform = $transform;
+  $rootScope.$on("$routeChangeError", function(event, next, previous, error) {
+    // We can catch the error thrown when the $requireSignIn promise is rejected
+    // and redirect the user back to the home page
+    if (error === "AUTH_REQUIRED") {
+      $location.path("/");
+    }
+  });
 });
 
 //
@@ -29,24 +42,60 @@ app.run(function($transform) {
 // in order to avoid unwanted routing.
 //
 app.config(function($routeProvider) {
-  $routeProvider.when('/', {templateUrl: 'home.html', reloadOnSearch: false});
-  $routeProvider.when('/ingredients', {templateUrl: 'ingredients.html', reloadOnSearch: false});
-  $routeProvider.when('/scroll', {templateUrl: 'scroll.html', reloadOnSearch: false});
-  $routeProvider.when('/toggle', {templateUrl: 'toggle.html', reloadOnSearch: false});
-  $routeProvider.when('/tabs', {templateUrl: 'tabs.html', reloadOnSearch: false});
-  $routeProvider.when('/accordion', {templateUrl: 'accordion.html', reloadOnSearch: false});
-  $routeProvider.when('/overlay', {templateUrl: 'overlay.html', reloadOnSearch: false});
-  $routeProvider.when('/forms', {templateUrl: 'forms.html', reloadOnSearch: false});
-  $routeProvider.when('/dropdown', {templateUrl: 'dropdown.html', reloadOnSearch: false});
-  $routeProvider.when('/touch', {templateUrl: 'touch.html', reloadOnSearch: false});
-  $routeProvider.when('/swipe', {templateUrl: 'swipe.html', reloadOnSearch: false});
-  $routeProvider.when('/drag', {templateUrl: 'drag.html', reloadOnSearch: false});
-  $routeProvider.when('/drag2', {templateUrl: 'drag2.html', reloadOnSearch: false});
+  $routeProvider.when('/', {
+	templateUrl: 'home.html', 
+	reloadOnSearch: false,
+   resolve: {
+      // controller will not be loaded until $waitForSignIn resolves
+      // Auth refers to our $firebaseAuth wrapper in the factory below
+      "currentAuth": ["Auth", function(Auth) {
+        // $waitForSignIn returns a promise so the resolve waits for it to complete
+        return Auth.$waitForSignIn();
+      }]
+    }
+  });
+  $routeProvider.when('/ingredients', {templateUrl: 'ingredients.html', reloadOnSearch: false,
+resolve: {
+      // controller will not be loaded until $requireSignIn resolves
+      // Auth refers to our $firebaseAuth wrapper in the factory below
+      "currentAuth": ["Auth", function(Auth) {
+        // $requireSignIn returns a promise so the resolve waits for it to complete
+        // If the promise is rejected, it will throw a $routeChangeError (see above)
+        return Auth.$requireSignIn();
+      }]
+    }
+
+});
+//  $routeProvider.when('/scroll', {templateUrl: 'scroll.html', reloadOnSearch: false});
+//  $routeProvider.when('/toggle', {templateUrl: 'toggle.html', reloadOnSearch: false});
+//  $routeProvider.when('/tabs', {templateUrl: 'tabs.html', reloadOnSearch: false});
+  $routeProvider.when('/accordion', {templateUrl: 'accordion.html', reloadOnSearch: false,
+resolve: {
+      // controller will not be loaded until $requireSignIn resolves
+      // Auth refers to our $firebaseAuth wrapper in the factory below
+      "currentAuth": ["Auth", function(Auth) {
+        // $requireSignIn returns a promise so the resolve waits for it to complete
+        // If the promise is rejected, it will throw a $routeChangeError (see above)
+        return Auth.$requireSignIn();
+      }]
+    }
+});
+//  $routeProvider.when('/overlay', {templateUrl: 'overlay.html', reloadOnSearch: false});
+//  $routeProvider.when('/forms', {templateUrl: 'forms.html', reloadOnSearch: false});
+//  $routeProvider.when('/dropdown', {templateUrl: 'dropdown.html', reloadOnSearch: false});
+//  $routeProvider.when('/touch', {templateUrl: 'touch.html', reloadOnSearch: false});
+//  $routeProvider.when('/swipe', {templateUrl: 'swipe.html', reloadOnSearch: false});
+//  $routeProvider.when('/drag', {templateUrl: 'drag.html', reloadOnSearch: false});
+//  $routeProvider.when('/drag2', {templateUrl: 'drag2.html', reloadOnSearch: false});
 });
 
 app.service("AngularDB", function($firebaseArray) {
   var ref = firebase.database().ref().child("ingredients");
   var ingredientsDB = $firebaseArray(ref);    
+
+  this.init = function(user) {
+      ingredientsDB = $firebaseArray(ref);    
+  }
    
   this.remove = function(x) {
     return ingredientsDB.$remove(x);
@@ -273,13 +322,23 @@ app.directive('dragMe', ['$drag', function($drag) {
   };
 }]);
 
+app.controller("SampleCtrl", ["$scope", "Auth", "AngularDB",
+  function($scope, Auth, AngularDB) {
+    $scope.auth = Auth;
+
+    // any time auth state changes, add the user data to scope
+    $scope.auth.$onAuthStateChanged(function(firebaseUser) {
+      $scope.firebaseUser = firebaseUser;
+      AngularDB.init(firebaseUser);
+    });
+  }
+]);
 
 //
 // For this trivial demo we have just a unique MainController
 // for everything
 //
 app.controller('MainController', function($rootScope, $scope) {
-
   $scope.swiped = function(direction) {
     alert('Swiped ' + direction);
   };
