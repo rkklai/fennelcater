@@ -2,8 +2,6 @@
 
 
 app.controller('IngredientsCtrl',  function($scope, $firebaseArray, AngularDB) {
-//  var ref = firebase.database().ref().child("ingredients");
-
   // create a synchronized array
   // click on `index.html` above to see it used in the DOM!
  // $scope.ingredients = $firebaseArray(ref);

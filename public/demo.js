@@ -94,7 +94,8 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
   var ref = firebase.database().ref().child("ingredients");
   var ingredientsDB = $firebaseArray(ref);    
   var storageRef = "";
-  var latestUrl = "";
+  var lastRef = firebase.database().ref('lastModified');
+  var lastModifiedDB = $firebaseObject(lastRef);
 
   this.init = function(user) {
       ingredientsDB = $firebaseArray(ref);    
@@ -116,32 +117,26 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
     return ingredientsDB;
   }
 
+  this.lastModified = function() {
+    return lastModifiedDB;
+  }
+
   this.backupDatabase = function() {
     var time = new Date().toString();
     var storageRef = firebase.storage().ref("backups/" + time + ".json" );
     var storage = $firebaseStorage(storageRef);
-    // reset latest url
-    latestUrl = "";
 
     return firebase.database().ref().once('value')
   		.then(function(dataSnapshot) {
 		    var jsonBlob = JSON.stringify(dataSnapshot.val());
 	            var htmlFile = new Blob([jsonBlob], { type : "text/json" });
     		    var uploadTask = storage.$put(htmlFile, { contentType: "text/json" });
-uploadTask.$complete(function(snapshot) {
-		           latestUrl =  snapshot.downloadURL;
-//  console.log(snapshot.downloadURL);
-});
+		    uploadTask.$complete(function(snapshot) {
+			   firebase.database().ref('lastModified').set({time: new Date().getTime(), url: snapshot.downloadURL});
+		    });
 
- //			storage.$getDownloadURL().then(function(url) {
-//		           latestUrl =  url;
-  //  			});
 	            return time;
 	       });
-  }
-
-  this.getBackupDownload = function() {
-	return latestUrl;
   }
 
 });
@@ -155,8 +150,10 @@ app.controller("HomeCtrl", ["$scope", "Auth", "AngularDB",
     // any time auth state changes, add the user data to scope
     $scope.auth.$onAuthStateChanged(function(firebaseUser) {
       $scope.firebaseUser = firebaseUser;
-      AngularDB.init(firebaseUser);
+//      AngularDB.init(firebaseUser);
     });
+
+    $scope.lastModified = AngularDB.lastModified();
      
     $scope.backupDatabase = function() {
       AngularDB.backupDatabase().then(function(time) {
@@ -164,10 +161,6 @@ app.controller("HomeCtrl", ["$scope", "Auth", "AngularDB",
           $scope.$apply();
        });
     }    
-
-    $scope.showDownloadUrl = function() {
-       $scope.backupUrl = AngularDB.getBackupDownload();
-    }
   }
 ]);
 

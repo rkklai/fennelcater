@@ -8,7 +8,7 @@
       </div>
 <div class="list-group-item list-group-item-home">
   <div ng-show="firebaseUser">
-    <p>Hello, {{ firebaseUser.displayName }}, your id is {{ firebaseUser.uid }} </p>
+    <p>Hello, {{ firebaseUser.displayName }}</p>
     <button class="btn btn-primary"  ng-click="auth.$signOut()">Sign Out</button>
   </div>
   <div ng-hide="firebaseUser">
@@ -18,14 +18,12 @@
 </div>
 
 <div class="list-group-item list-group-item-home">
+Last database <a ng-href="{{lastModified.url}}">backup</a> is on {{ lastModified.time | date:'yyyy-MM-dd HH:mm' }}.<br>
     <button class="btn btn-default"  ng-click="backupDatabase()">Back up database</button>
-    <button class="btn btn-default"  ng-click="showDownloadUrl()">Show download link</button>
     <div class="alert alert-success alert-dismissable fade in" ng-show="savedBackup">
-<button class="close" data-dismiss="alert" aria-label="close" ng-click="savedBackup=''">&times;</button>
-<strong>Success!</strong> Backed up database on {{ savedBackup }}</div>
-    <div class="alert alert-dismissable fade in alert-success" ng-show="backupUrl">Download the backup <a ng-href="{{ backupUrl }}">here</a>
-<button class="close" data-dismiss="alert" aria-label="close" ng-click="backupUrl=''">&times;</button>
-</div>
+       <button class="close" data-dismiss="alert" aria-label="close" ng-click="savedBackup=''">&times;</button>
+       <strong>Success!</strong> Backed up database on {{ savedBackup }}
+    </div>
 </div>
 
   </div>
