@@ -98,7 +98,24 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
   var lastModifiedDB = $firebaseObject(lastRef);
   var backupRef = firebase.database().ref().child("backups");
   var backupDB = $firebaseArray(backupRef);    
-   
+  var authenticated = 1;  
+
+  this.authenticate = function(login) {
+     if ( authenticated ^ login )
+     {
+        ingredientsDB = $firebaseArray(ref);
+        lastModifiedDB = $firebaseObject(lastRef);
+        backupDB = $firebaseArray(backupRef);    
+
+        authenticated = login;
+        return 1;
+     }
+     else
+     {
+        return 0;
+     }
+  }
+
   this.remove = function(x) {
     return ingredientsDB.$remove(x);
   }
@@ -124,7 +141,9 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
   }
 
   this.backupDatabase = function() {
-    var time = new Date().toString();
+    var backupNow = new Date();
+    var now = backupNow.getTime();
+    var time = backupNow.toString();
     var storageRef = firebase.storage().ref("backups/" + time + ".json" );
     var storage = $firebaseStorage(storageRef);
 
@@ -134,7 +153,6 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
 	            var htmlFile = new Blob([jsonBlob], { type : "text/json" });
     		    var uploadTask = storage.$put(htmlFile, { contentType: "text/json" });
 		    uploadTask.$complete(function(snapshot) {
-                           var now = new Date().getTime();
 			   firebase.database().ref('lastModified').set({time: now, url: snapshot.downloadURL});
 		    	   backupDB.$add({time: now, url: snapshot.downloadURL});
 		    });
@@ -149,20 +167,36 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
 app.controller("HomeCtrl", ["$scope", "Auth", "AngularDB",
   function($scope, Auth, AngularDB) {
     $scope.auth = Auth;
+    $scope.DB = AngularDB;
     $scope.savedBackup = "";
     // any time auth state changes, add the user data to scope
     $scope.auth.$onAuthStateChanged(function(firebaseUser) {
       $scope.firebaseUser = firebaseUser;
+
+      var changed = 0;
+
+      if ( firebaseUser ) 
+      { 
+        changed = $scope.DB.authenticate(1);
+      } else {
+        changed = $scope.DB.authenticate(0);
+      }
+
+      if (changed) 
+      {
+        $scope.lastModified = $scope.DB.lastModified();
+        $scope.backups = $scope.DB.backups();
+//        $scope.$apply();
+      }
     });
 
     $scope.lastModified = AngularDB.lastModified();
     $scope.backups = AngularDB.backups();
-
      
     $scope.backupDatabase = function() {
       AngularDB.backupDatabase().then(function(time) {
 	  $scope.savedBackup = time;
-          $scope.$apply();
+//          $scope.$apply();
        });
     }    
   }
