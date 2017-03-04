@@ -26,6 +26,18 @@ Last database <a ng-href="{{lastModified.url}}">backup</a> is on {{ lastModified
     </div>
 </div>
 
+<div class="list-group-item list-group-item-home">
+You can download the following backups:
+<ul>
+    <li ng-repeat="backup in backups | limitTo:10 | orderBy:'time':true">
+          <a ng-href="{{backup.url}}">{{ backup.time | date:'yyyy-MM-dd HH:mm' }}</a>
+    </li>
+    <li ng-if="backups.length === 0">
+      <strong>No backups found...</strong>
+    </li>
+  </ul>
+</div>
+
   </div>
 </div>
 </div>

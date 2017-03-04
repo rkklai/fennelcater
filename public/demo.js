@@ -96,10 +96,8 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
   var storageRef = "";
   var lastRef = firebase.database().ref('lastModified');
   var lastModifiedDB = $firebaseObject(lastRef);
-
-  this.init = function(user) {
-      ingredientsDB = $firebaseArray(ref);    
-  }
+  var backupRef = firebase.database().ref().child("backups");
+  var backupDB = $firebaseArray(backupRef);    
    
   this.remove = function(x) {
     return ingredientsDB.$remove(x);
@@ -121,6 +119,10 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
     return lastModifiedDB;
   }
 
+  this.backups = function() {
+    return backupDB;
+  }
+
   this.backupDatabase = function() {
     var time = new Date().toString();
     var storageRef = firebase.storage().ref("backups/" + time + ".json" );
@@ -132,8 +134,11 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
 	            var htmlFile = new Blob([jsonBlob], { type : "text/json" });
     		    var uploadTask = storage.$put(htmlFile, { contentType: "text/json" });
 		    uploadTask.$complete(function(snapshot) {
-			   firebase.database().ref('lastModified').set({time: new Date().getTime(), url: snapshot.downloadURL});
+                           var now = new Date().getTime();
+			   firebase.database().ref('lastModified').set({time: now, url: snapshot.downloadURL});
+		    	   backupDB.$add({time: now, url: snapshot.downloadURL});
 		    });
+
 
 	            return time;
 	       });
@@ -145,15 +150,14 @@ app.controller("HomeCtrl", ["$scope", "Auth", "AngularDB",
   function($scope, Auth, AngularDB) {
     $scope.auth = Auth;
     $scope.savedBackup = "";
-    $scope.backupUrl = "";
-
     // any time auth state changes, add the user data to scope
     $scope.auth.$onAuthStateChanged(function(firebaseUser) {
       $scope.firebaseUser = firebaseUser;
-//      AngularDB.init(firebaseUser);
     });
 
     $scope.lastModified = AngularDB.lastModified();
+    $scope.backups = AngularDB.backups();
+
      
     $scope.backupDatabase = function() {
       AngularDB.backupDatabase().then(function(time) {
