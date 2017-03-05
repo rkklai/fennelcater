@@ -218,7 +218,16 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
 		    	   backupDB.$add({time: now, url: snapshot.downloadURL})
 				.then(function(ref) {
 				   if ( backupDB.length > 10 ) {
-        	                      backupDB.$remove(0);
+				       var oldest = backupDB[0];
+				 	var i = 0;
+        	                       for (i = 0; i < backupDB.length; i++) {
+				          var current = backupDB[i];
+					  if ( current.time < oldest.time ) {
+						oldest = current;
+					  }
+				       }	
+				       backupDB.$remove(oldest);
+//backupDB.$remove(0);
                 	           }
 				});
 		    });

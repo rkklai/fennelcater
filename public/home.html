@@ -29,7 +29,7 @@
 <div class="list-group-item list-group-item-home" ng-show="firebaseUser && backups.$resolved">
 Download the following backups for recovery:
 <div class="list-group">
-    <div ng-repeat="backup in backups | limitTo:10 | orderBy:'time':true">
+    <div ng-repeat="backup in backups | orderBy:'time':true"  | limitTo:15>
           <a class="list-group-item" ng-href="{{backup.url}}">{{ backup.time | date:'yyyy-MM-dd HH:mm:ss' }}</a>
     </div>
     <div class="list-group-item" ng-if="backups.length == 0">
