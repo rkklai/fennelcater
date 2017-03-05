@@ -15,7 +15,8 @@ var app = angular.module('MobileAngularUiExamples', [
   // easy to use alternative to other 3rd party libs like hammer.js, with the
   // final pourpose to integrate gestures into default ui interactions like
   // opening sidebars, turning switches on/off ..
-  'mobile-angular-ui.gestures'
+  'mobile-angular-ui.gestures',
+  'ngFileUpload'
 ]);
 
 // let's create a re-usable factory that generates the $firebaseAuth instance
@@ -24,6 +25,61 @@ app.factory("Auth", ["$firebaseAuth",
     return $firebaseAuth();
   }
 ]);
+
+
+    var fileReader = function ($q, $log) {
+ 
+        var onLoad = function(reader, deferred, scope) {
+            return function () {
+                scope.$apply(function () {
+                    deferred.resolve(reader.result);
+                });
+            };
+        };
+ 
+        var onError = function (reader, deferred, scope) {
+            return function () {
+                scope.$apply(function () {
+                    deferred.reject(reader.result);
+                });
+            };
+        };
+ 
+        var onProgress = function(reader, scope) {
+            return function (event) {
+                scope.$broadcast("fileProgress",
+                    {
+                        total: event.total,
+                        loaded: event.loaded
+                    });
+            };
+        };
+ 
+        var getReader = function(deferred, scope) {
+            var reader = new FileReader();
+            reader.onload = onLoad(reader, deferred, scope);
+            reader.onerror = onError(reader, deferred, scope);
+            reader.onprogress = onProgress(reader, scope);
+            return reader;
+        };
+ 
+        var readAsText = function (file, scope) {
+            var deferred = $q.defer();
+             
+            var reader = getReader(deferred, scope);         
+            reader.readAsText(file);
+             
+            return deferred.promise;
+        };
+ 
+        return {
+            readAsText: readAsText  
+        };
+    };
+ 
+    app.factory("fileReader",
+                   ["$q", "$log", fileReader]);
+
 
 app.run(function($transform, $rootScope, $location) {
   window.$transform = $transform;
@@ -90,7 +146,7 @@ resolve: {
 //  $routeProvider.when('/drag2', {templateUrl: 'drag2.html', reloadOnSearch: false});
 });
 
-app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStorage) {
+app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStorage, $filter) {
   var ref = firebase.database().ref().child("ingredients");
   var ingredientsDB = $firebaseArray(ref);    
   var storageRef = "";
@@ -140,21 +196,31 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
     return backupDB;
   }
 
+  this.recoverDatabase = function(backupString) {
+     var backupJson = angular.fromJson(backupString);
+     return firebase.database().ref().set(backupJson);
+  }
+
   this.backupDatabase = function() {
     var backupNow = new Date();
     var now = backupNow.getTime();
-    var time = backupNow.toString();
+    var time = $filter('date')( backupNow, 'yyyy-MM-dd HH:mm:ss');
     var storageRef = firebase.storage().ref("backups/" + time + ".json" );
     var storage = $firebaseStorage(storageRef);
 
     return firebase.database().ref().once('value')
   		.then(function(dataSnapshot) {
 		    var jsonBlob = JSON.stringify(dataSnapshot.val());
-	            var htmlFile = new Blob([jsonBlob], { type : "text/json" });
-    		    var uploadTask = storage.$put(htmlFile, { contentType: "text/json" });
+	            var htmlFile = new Blob([jsonBlob], { type : "application/json" });
+    		    var uploadTask = storage.$put(htmlFile, { contentType: "application/json" });
 		    uploadTask.$complete(function(snapshot) {
 			   firebase.database().ref('lastModified').set({time: now, url: snapshot.downloadURL});
-		    	   backupDB.$add({time: now, url: snapshot.downloadURL});
+		    	   backupDB.$add({time: now, url: snapshot.downloadURL})
+				.then(function(ref) {
+				   if ( backupDB.length > 10 ) {
+        	                      backupDB.$remove(0);
+                	           }
+				});
 		    });
 
 
@@ -164,8 +230,8 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
 
 });
 
-app.controller("HomeCtrl", ["$scope", "Auth", "AngularDB",
-  function($scope, Auth, AngularDB) {
+app.controller("HomeCtrl", ["$scope", "Auth", "AngularDB", "fileReader",
+  function($scope, Auth, AngularDB, fileReader) {
     $scope.auth = Auth;
     $scope.DB = AngularDB;
     $scope.savedBackup = "";
@@ -186,19 +252,29 @@ app.controller("HomeCtrl", ["$scope", "Auth", "AngularDB",
       {
         $scope.lastModified = $scope.DB.lastModified();
         $scope.backups = $scope.DB.backups();
-//        $scope.$apply();
+//        $scope.$apply();        
       }
     });
 
     $scope.lastModified = AngularDB.lastModified();
     $scope.backups = AngularDB.backups();
-     
+
     $scope.backupDatabase = function() {
       AngularDB.backupDatabase().then(function(time) {
 	  $scope.savedBackup = time;
 //          $scope.$apply();
        });
     }    
-  }
+    
+    $scope.upload = function (file) {
+        if ( file )
+        {
+       		 fileReader.readAsText(file, $scope)
+                      .then(function(result) {
+			  $scope.DB.recoverDatabase(result);
+                     });
+        }
+    } 
+ }
 ]);
 
