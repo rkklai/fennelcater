@@ -21,64 +21,64 @@ var app = angular.module('MobileAngularUiExamples', [
 
 // let's create a re-usable factory that generates the $firebaseAuth instance
 app.factory("Auth", ["$firebaseAuth",
-  function($firebaseAuth) {
-    return $firebaseAuth();
-  }
+function($firebaseAuth) {
+  return $firebaseAuth();
+}
 ]);
 
 
-    var fileReader = function ($q, $log) {
- 
-        var onLoad = function(reader, deferred, scope) {
-            return function () {
-                scope.$apply(function () {
-                    deferred.resolve(reader.result);
-                });
-            };
-        };
- 
-        var onError = function (reader, deferred, scope) {
-            return function () {
-                scope.$apply(function () {
-                    deferred.reject(reader.result);
-                });
-            };
-        };
- 
-        var onProgress = function(reader, scope) {
-            return function (event) {
-                scope.$broadcast("fileProgress",
-                    {
-                        total: event.total,
-                        loaded: event.loaded
-                    });
-            };
-        };
- 
-        var getReader = function(deferred, scope) {
-            var reader = new FileReader();
-            reader.onload = onLoad(reader, deferred, scope);
-            reader.onerror = onError(reader, deferred, scope);
-            reader.onprogress = onProgress(reader, scope);
-            return reader;
-        };
- 
-        var readAsText = function (file, scope) {
-            var deferred = $q.defer();
-             
-            var reader = getReader(deferred, scope);         
-            reader.readAsText(file);
-             
-            return deferred.promise;
-        };
- 
-        return {
-            readAsText: readAsText  
-        };
+var fileReader = function ($q, $log) {
+
+  var onLoad = function(reader, deferred, scope) {
+    return function () {
+      scope.$apply(function () {
+        deferred.resolve(reader.result);
+      });
     };
- 
-    app.factory("fileReader",
-                   ["$q", "$log", fileReader]);
+  };
+
+  var onError = function (reader, deferred, scope) {
+    return function () {
+      scope.$apply(function () {
+        deferred.reject(reader.result);
+      });
+    };
+  };
+
+  var onProgress = function(reader, scope) {
+    return function (event) {
+      scope.$broadcast("fileProgress",
+      {
+        total: event.total,
+        loaded: event.loaded
+      });
+    };
+  };
+
+  var getReader = function(deferred, scope) {
+    var reader = new FileReader();
+    reader.onload = onLoad(reader, deferred, scope);
+    reader.onerror = onError(reader, deferred, scope);
+    reader.onprogress = onProgress(reader, scope);
+    return reader;
+  };
+
+  var readAsText = function (file, scope) {
+    var deferred = $q.defer();
+
+    var reader = getReader(deferred, scope);
+    reader.readAsText(file);
+
+    return deferred.promise;
+  };
+
+  return {
+    readAsText: readAsText
+  };
+};
+
+app.factory("fileReader",
+["$q", "$log", fileReader]);
 
 
 app.run(function($transform, $rootScope, $location) {
@@ -99,10 +99,10 @@ app.run(function($transform, $rootScope, $location) {
 //
 app.config(function($routeProvider) {
   $routeProvider.when('/', {
-	templateUrl: 'home.html', 
-	controller: 'HomeCtrl',
-	reloadOnSearch: false,
-   resolve: {
+    templateUrl: 'home.html',
+    controller: 'HomeCtrl',
+    reloadOnSearch: false,
+    resolve: {
       // controller will not be loaded until $waitForSignIn resolves
       // Auth refers to our $firebaseAuth wrapper in the factory below
       "currentAuth": ["Auth", function(Auth) {
@@ -112,30 +112,30 @@ app.config(function($routeProvider) {
     }
   });
   $routeProvider.when('/ingredients', {templateUrl: 'ingredients.html', reloadOnSearch: false,
-resolve: {
-      // controller will not be loaded until $requireSignIn resolves
-      // Auth refers to our $firebaseAuth wrapper in the factory below
-      "currentAuth": ["Auth", function(Auth) {
-        // $requireSignIn returns a promise so the resolve waits for it to complete
-        // If the promise is rejected, it will throw a $routeChangeError (see above)
-        return Auth.$requireSignIn();
-      }]
-    }
+  resolve: {
+    // controller will not be loaded until $requireSignIn resolves
+    // Auth refers to our $firebaseAuth wrapper in the factory below
+    "currentAuth": ["Auth", function(Auth) {
+      // $requireSignIn returns a promise so the resolve waits for it to complete
+      // If the promise is rejected, it will throw a $routeChangeError (see above)
+      return Auth.$requireSignIn();
+    }]
+  }
 
 });
 //  $routeProvider.when('/scroll', {templateUrl: 'scroll.html', reloadOnSearch: false});
 //  $routeProvider.when('/toggle', {templateUrl: 'toggle.html', reloadOnSearch: false});
 //  $routeProvider.when('/tabs', {templateUrl: 'tabs.html', reloadOnSearch: false});
-  $routeProvider.when('/accordion', {templateUrl: 'accordion.html', reloadOnSearch: false,
+$routeProvider.when('/accordion', {templateUrl: 'accordion.html', reloadOnSearch: false,
 resolve: {
-      // controller will not be loaded until $requireSignIn resolves
-      // Auth refers to our $firebaseAuth wrapper in the factory below
-      "currentAuth": ["Auth", function(Auth) {
-        // $requireSignIn returns a promise so the resolve waits for it to complete
-        // If the promise is rejected, it will throw a $routeChangeError (see above)
-        return Auth.$requireSignIn();
-      }]
-    }
+  // controller will not be loaded until $requireSignIn resolves
+  // Auth refers to our $firebaseAuth wrapper in the factory below
+  "currentAuth": ["Auth", function(Auth) {
+    // $requireSignIn returns a promise so the resolve waits for it to complete
+    // If the promise is rejected, it will throw a $routeChangeError (see above)
+    return Auth.$requireSignIn();
+  }]
+}
 });
 //  $routeProvider.when('/overlay', {templateUrl: 'overlay.html', reloadOnSearch: false});
 //  $routeProvider.when('/forms', {templateUrl: 'forms.html', reloadOnSearch: false});
@@ -148,28 +148,28 @@ resolve: {
 
 app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStorage, $filter) {
   var ref = firebase.database().ref().child("ingredients");
-  var ingredientsDB = $firebaseArray(ref);    
+  var ingredientsDB = $firebaseArray(ref);
   var storageRef = "";
   var lastRef = firebase.database().ref('lastModified');
   var lastModifiedDB = $firebaseObject(lastRef);
   var backupRef = firebase.database().ref().child("backups");
-  var backupDB = $firebaseArray(backupRef);    
-  var authenticated = 1;  
+  var backupDB = $firebaseArray(backupRef);
+  var authenticated = 1;
 
   this.authenticate = function(login) {
-     if ( authenticated ^ login )
-     {
-        ingredientsDB = $firebaseArray(ref);
-        lastModifiedDB = $firebaseObject(lastRef);
-        backupDB = $firebaseArray(backupRef);    
+    if ( authenticated ^ login )
+    {
+      ingredientsDB = $firebaseArray(ref);
+      lastModifiedDB = $firebaseObject(lastRef);
+      backupDB = $firebaseArray(backupRef);
 
-        authenticated = login;
-        return 1;
-     }
-     else
-     {
-        return 0;
-     }
+      authenticated = login;
+      return 1;
+    }
+    else
+    {
+      return 0;
+    }
   }
 
   this.remove = function(x) {
@@ -179,7 +179,7 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
   this.add = function(x) {
     return ingredientsDB.$add(x);
   }
- 
+
   this.save = function(x) {
     return ingredientsDB.$save(x);
   }
@@ -197,8 +197,8 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
   }
 
   this.recoverDatabase = function(backupString) {
-     var backupJson = angular.fromJson(backupString);
-     return firebase.database().ref().set(backupJson);
+    var backupJson = angular.fromJson(backupString);
+    return firebase.database().ref().set(backupJson);
   }
 
   this.backupDatabase = function() {
@@ -209,81 +209,80 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
     var storage = $firebaseStorage(storageRef);
 
     return firebase.database().ref().once('value')
-  		.then(function(dataSnapshot) {
-		    var jsonBlob = JSON.stringify(dataSnapshot.val());
-	            var htmlFile = new Blob([jsonBlob], { type : "application/json" });
-    		    var uploadTask = storage.$put(htmlFile, { contentType: "application/json" });
-		    uploadTask.$complete(function(snapshot) {
-			   firebase.database().ref('lastModified').set({time: now, url: snapshot.downloadURL});
-		    	   backupDB.$add({time: now, url: snapshot.downloadURL})
-				.then(function(ref) {
-				   if ( backupDB.length > 10 ) {
-				       var oldest = backupDB[0];
-				 	var i = 0;
-        	                       for (i = 0; i < backupDB.length; i++) {
-				          var current = backupDB[i];
-					  if ( current.time < oldest.time ) {
-						oldest = current;
-					  }
-				       }	
-				       backupDB.$remove(oldest);
-//backupDB.$remove(0);
-                	           }
-				});
-		    });
+    .then(function(dataSnapshot) {
+      var jsonBlob = JSON.stringify(dataSnapshot.val());
+      var htmlFile = new Blob([jsonBlob], { type : "application/json" });
+      var uploadTask = storage.$put(htmlFile, { contentType: "application/json" });
+      uploadTask.$complete(function(snapshot) {
+        firebase.database().ref('lastModified').set({time: now, url: snapshot.downloadURL});
+        backupDB.$add({time: now, url: snapshot.downloadURL})
+        .then(function(ref) {
+          if ( backupDB.length > 10 ) {
+            var oldest = backupDB[0];
+            var i = 0;
+            for (i = 0; i < backupDB.length; i++) {
+              var current = backupDB[i];
+              if ( current.time < oldest.time ) {
+                oldest = current;
+              }
+            }
+            backupDB.$remove(oldest);
+            //backupDB.$remove(0);
+          }
+        });
+      });
 
 
-	            return time;
-	       });
+      return time;
+    });
   }
 
 });
 
 app.controller("HomeCtrl", ["$scope", "Auth", "AngularDB", "fileReader",
-  function($scope, Auth, AngularDB, fileReader) {
-    $scope.auth = Auth;
-    $scope.DB = AngularDB;
-    $scope.savedBackup = "";
-    // any time auth state changes, add the user data to scope
-    $scope.auth.$onAuthStateChanged(function(firebaseUser) {
-      $scope.firebaseUser = firebaseUser;
+function($scope, Auth, AngularDB, fileReader) {
+  $scope.auth = Auth;
+  $scope.DB = AngularDB;
+  $scope.savedBackup = "";
+  // any time auth state changes, add the user data to scope
+  $scope.auth.$onAuthStateChanged(function(firebaseUser) {
+    $scope.firebaseUser = firebaseUser;
 
-      var changed = 0;
+    var changed = 0;
 
-      if ( firebaseUser ) 
-      { 
-        changed = $scope.DB.authenticate(1);
-      } else {
-        changed = $scope.DB.authenticate(0);
-      }
+    if ( firebaseUser )
+    {
+      changed = $scope.DB.authenticate(1);
+    } else {
+      changed = $scope.DB.authenticate(0);
+    }
 
-      if (changed) 
-      {
-        $scope.lastModified = $scope.DB.lastModified();
-        $scope.backups = $scope.DB.backups();
-//        $scope.$apply();        
-      }
+    if (changed)
+    {
+      $scope.lastModified = $scope.DB.lastModified();
+      $scope.backups = $scope.DB.backups();
+      //        $scope.$apply();
+    }
+  });
+
+  $scope.lastModified = AngularDB.lastModified();
+  $scope.backups = AngularDB.backups();
+
+  $scope.backupDatabase = function() {
+    AngularDB.backupDatabase().then(function(time) {
+      $scope.savedBackup = time;
+      //          $scope.$apply();
     });
+  }
 
-    $scope.lastModified = AngularDB.lastModified();
-    $scope.backups = AngularDB.backups();
-
-    $scope.backupDatabase = function() {
-      AngularDB.backupDatabase().then(function(time) {
-	  $scope.savedBackup = time;
-//          $scope.$apply();
-       });
-    }    
-    
-    $scope.upload = function (file) {
-        if ( file )
-        {
-       		 fileReader.readAsText(file, $scope)
-                      .then(function(result) {
-			  $scope.DB.recoverDatabase(result);
-                     });
-        }
-    } 
- }
+  $scope.upload = function (file) {
+    if ( file )
+    {
+      fileReader.readAsText(file, $scope)
+      .then(function(result) {
+        $scope.DB.recoverDatabase(result);
+      });
+    }
+  }
+}
 ]);
-
