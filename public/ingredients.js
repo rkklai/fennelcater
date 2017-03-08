@@ -1,7 +1,7 @@
 /* eslint no-alert: 0 */
 
 
-app.controller('IngredientsCtrl',  function($scope, $firebaseArray, AngularDB) {
+app.controller('IngredientsCtrl',  function($scope, $firebaseArray, AngularDB, $uibModal) {
   // create a synchronized array
   // click on `index.html` above to see it used in the DOM!
  // $scope.ingredients = $firebaseArray(ref);
@@ -18,7 +18,7 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray, AngularDB) {
     var lowerName = $scope.iname.toLowerCase();
     var lowerUnit = $scope.ingredientUnit.toLowerCase();
     var lowerStore = $scope.ingredientStore.toLowerCase();
- 
+
     // reset values
     $scope.searchWarn = 0;
     $scope.addedIngredient = 0;
@@ -26,10 +26,10 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray, AngularDB) {
     $scope.duplicateIngredientName = "";
 
 
-    var found = $scope.ingredients.find( x => x.name.toLowerCase() == lowerName  
-              && x.quantity == $scope.ingredientQuantity 
-              && x.unit.toLowerCase() == lowerUnit 
-              && x.store.toLowerCase() == lowerStore 
+    var found = $scope.ingredients.find( x => x.name.toLowerCase() == lowerName
+              && x.quantity == $scope.ingredientQuantity
+              && x.unit.toLowerCase() == lowerUnit
+              && x.store.toLowerCase() == lowerStore
 	);
     if ( found ) {
        $scope.search = $scope.iname;
@@ -86,8 +86,8 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray, AngularDB) {
     }
 
     $scope.myOrderBy = x;
-  }  
-  
+  }
+
   $scope.setDeleteIngredient = function(d) {
     // reset values
     $scope.searchWarn = 0;
@@ -101,6 +101,30 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray, AngularDB) {
     $scope.searchWarn = 0;
     $scope.addedIngredient = 0;
   }
+
+  $scope.dismiss = function(ingredient) {
+    if ( ingredient )
+    {
+      $scope.remove(ingredient);
+      $scope.modalInstance.dismiss("delete");
+    }
+    else {
+      $scope.modalInstance.dismiss("cancel");
+    }
+  }
+
+  $scope.open = function (ingredient) {
+    $scope.deleteIngredient = ingredient;
+    // var parentElem = parentSelector ?
+    //   angular.element($document[0].querySelector('.modal-demo ' + parentSelector)) : undefined;
+    $scope.modalInstance = $uibModal.open({
+      // animation: $ctrl.animationsEnabled,
+      ariaLabelledBy: 'modal-title',
+      ariaDescribedBy: 'modal-body',
+      templateUrl: 'myModalContent.html',
+  //    controller: 'ModalInstanceCtrl',
+  //    controllerAs: '$ctrl',
+      scope: $scope
+    });
+  };
 });
-
-

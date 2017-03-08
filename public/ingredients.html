@@ -1,122 +1,108 @@
 <div ng-controller="IngredientsCtrl">
-<div class="scrollable">
- <div class="scrollable-content section">
-  <form class="form"  role="form" ng-submit='addIngredient()'>
-    <fieldset>
-      <legend>New Ingredient</legend>
-        <div class="form-group has-success has-feedback">
-         <input required class="form-control"  type="text"
-                 ng-model="iname"
-                 placeholder="Ingredient name">
-          <input required type="number" step="0.01"
-                 ng-model="ingredientQuantity"
-                 ng-model-options="{ allowInvalid: false }"
-                 class="form-control"
-                 placeholder="Quantity (number)">
-          <input required type="text"
-                 ng-model="ingredientUnit"
-                 class="form-control"
-                 placeholder="Unit">
-          <input type="text"
-                 ng-model="ingredientStore"
-                 class="form-control"
-                 placeholder="Store">
-          <input required type="number" step="0.01"
-                 ng-model="ingredientPrice"
-                 ng-model-options="{ allowInvalid: false }"
-		 class="form-control"
-                 placeholder="Price (number)">
-  	</div>
-    </fieldset>
-
-    <button class="btn btn-primary btn-block" ng-disabled="! (iname && ingredientQuantity && ingredientUnit && ingredientPrice )">
-      Add
-    </button>
-
-    <div ui-content-for="navbarAction">
-      <a class="btn" ng-click="addIngredient()">Add</a>
-    </div>
-
-  </form>
-
-<hr>
-<style>
-input.searchWarning {background-color: yellow;}
-</style>
-<div class="alert alert-success alert-dismissable fade in" ng-show="addedIngredient">
-    <button class="close" data-dismiss="alert" aria-label="close" ng-click="addedIngredient=''">&times;</button>
-    <strong>Success!</strong> Added ingredient {{ addedIngredientName }}
-</div>
-<div class="alert alert-warning alert-dismissable fade in" ng-show="searchWarn">
-    <button class="close" data-dismiss="alert" aria-label="close" ng-click="searchWarn=0">&times;</button>
-    <strong>Warning!</strong> Duplicate ingredient {{ duplicateIngredientName }}): please edit it in the table or delete it first
-</div>
-
-<input type="text" class="form-control" placeholder="Search (ingredient, quantity, unit, price or store)" ng-model="search" ng-class="{searchWarning: searchWarn}">
-    <button class="btn btn-default" ng-click="clearSearch()">
-      Clear
-    </button>
-<hr>
-  <table class="table">
-    <thead>
-      <tr>
-        <th ng-click="orderByMe('name')">Ingredient ({{ ingredients.length }})</th>
-        <th ng-click="orderByMe('quantity')">Quantity</th>
-        <th ng-click="orderByMe('unit')">Unit</th>
-        <th ng-click="orderByMe('store')">Store</th>
-        <th ng-click="orderByMe('price')" class="text-right">Price($)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr ng-repeat="ingredient in ingredients | filter : search | orderBy:myOrderBy:reverse">
-        <td>{{ingredient.name}}</td>
-        <td><input required class="form-control"
-		type="number" step="0.01"
-		ng-model-options="{ allowInvalid: false }"
-		ng-model="ingredient.quantity"
-		ng-blur="save(ingredient)"></td>
-        <td>{{ingredient.unit}}</td>
-        <td><input class="form-control"
-		type="text"
-		ng-model="ingredient.store"
-		ng-blur="save(ingredient)"></td>
-        <td><input class="col-xs-3 form-control text-right"
-		required
-		type="number" step="0.01"
-		ng-model="ingredient.price"
-		ng-model-options="{ allowInvalid: false }"
-		ng-blur="save(ingredient)"></td>
-        <td class="text-right">
-           <button class="btn btn-danger" ui-turn-on="modal1" ng-click="remove(ingredient)">
-              <span class="glyphicon glyphicon-trash"></span>
-           </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-</div>
-
-
-<div ui-content-for="modals">
-<div class="modal" ui-if="modal1" ui-shared-state="modal1">
-  <div class="modal-backdrop in"></div>
-  <div class="modal-dialog">
-    <div class="modal-content">
+  <script type="text/ng-template" id="myModalContent.html">
       <div class="modal-header">
-        <h4 class="modal-title">Confirm delete</h4>
+          <h3 class="modal-title" id="modal-title">Warning!</h3>
       </div>
-      <div class="modal-body">
-        <p>Are you sure to delete <b>{{ deleteIngredient.name + ' ($' + deleteIngredient.price + '/' + deleteIngredient.quantity + deleteIngredient.unit + '@' + deleteIngredient.store }})</b>?</p>
+      <div class="modal-body" id="modal-body">
+          Are you sure to delete <b>{{ deleteIngredient.name + ' ($' + deleteIngredient.price + '/' + deleteIngredient.quantity + deleteIngredient.unit + '@' + deleteIngredient.store }})</b>?
       </div>
       <div class="modal-footer">
-        <button ui-turn-off="modal1" class="btn btn-default">Cancel</button>
-        <button ui-turn-off="modal1" class="btn btn-danger" ng-click="remove(deleteIngredient)">Delete</button>
+          <button class="btn btn-danger" type="button" ng-click="dismiss(deleteIngredient)">Delete</button>
+          <button class="btn btn-success" type="button" ng-click="dismiss()">Cancel</button>
+      </div>
+  </script>
+
+  <div class="scrollable">
+    <div class="scrollable-content section">
+      <form class="form"  role="form" ng-submit='addIngredient()'>
+        <fieldset>
+          <legend>New Ingredient</legend>
+          <div class="form-group has-success has-feedback">
+            <input required class="form-control"  type="text"
+            ng-model="iname"
+            placeholder="Ingredient name">
+            <input required type="number" step="0.01"
+            ng-model="ingredientQuantity"
+            ng-model-options="{ allowInvalid: false }"
+            class="form-control"
+            placeholder="Quantity (number)">
+            <input required type="text"
+            ng-model="ingredientUnit"
+            class="form-control"
+            placeholder="Unit">
+            <input type="text"
+            ng-model="ingredientStore"
+            class="form-control"
+            placeholder="Store">
+            <input required type="number" step="0.01"
+            ng-model="ingredientPrice"
+            ng-model-options="{ allowInvalid: false }"
+            class="form-control"
+            placeholder="Price (number)">
+          </div>
+        </fieldset>
+
+        <button class="btn btn-primary btn-block" ng-disabled="! (iname && ingredientQuantity && ingredientUnit && ingredientPrice )">
+          Add
+        </button>
+      </form>
+
+      <hr>
+      <style>
+        input.searchWarning {background-color: yellow;}
+      </style>
+      <div class="alert alert-success alert-dismissable fade in" ng-show="addedIngredient">
+        <button class="close" data-dismiss="alert" aria-label="close" ng-click="addedIngredient=''">&times;</button>
+        <strong>Success!</strong> Added ingredient {{ addedIngredientName }}
+      </div>
+      <div class="alert alert-warning alert-dismissable fade in" ng-show="searchWarn">
+        <button class="close" data-dismiss="alert" aria-label="close" ng-click="searchWarn=0">&times;</button>
+        <strong>Warning!</strong> Duplicate ingredient {{ duplicateIngredientName }}): please edit it in the table or delete it first
+      </div>
+
+      <input type="text" class="form-control" placeholder="Search (ingredient, quantity, unit, price or store)" ng-model="search" ng-class="{searchWarning: searchWarn}">
+      <button class="btn btn-default" ng-click="clearSearch()">
+        Clear
+      </button>
+      <hr>
+      <table class="table">
+        <thead>
+          <tr>
+            <th ng-click="orderByMe('name')">Ingredient ({{ ingredients.length }})</th>
+            <th ng-click="orderByMe('quantity')">Quantity</th>
+            <th ng-click="orderByMe('unit')">Unit</th>
+            <th ng-click="orderByMe('store')">Store</th>
+            <th ng-click="orderByMe('price')" class="text-right">Price($)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="ingredient in ingredients | filter : search | orderBy:myOrderBy:reverse">
+            <td>{{ingredient.name}}</td>
+            <td><input required class="form-control"
+              type="number" step="0.01"
+              ng-model-options="{ allowInvalid: false }"
+              ng-model="ingredient.quantity"
+              ng-blur="save(ingredient)"></td>
+              <td>{{ingredient.unit}}</td>
+              <td><input class="form-control"
+                type="text"
+                ng-model="ingredient.store"
+                ng-blur="save(ingredient)"></td>
+                <td><input class="col-xs-3 form-control text-right"
+                  required
+                  type="number" step="0.01"
+                  ng-model="ingredient.price"
+                  ng-model-options="{ allowInvalid: false }"
+                  ng-blur="save(ingredient)"></td>
+                  <td class="text-right">
+                    <button class="btn btn-danger" ng-click="open(ingredient)">
+                    <span class="glyphicon glyphicon-trash"></span>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-
-
-</div>
 </div>
