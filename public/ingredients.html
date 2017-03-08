@@ -1,12 +1,6 @@
 <div ng-controller="IngredientsCtrl">
-<div ui-content-for="title">
-  <span>{{ ingredients.length }} Ingredients</span>
-</div>
-
-
-
 <div class="scrollable">
- <div class="scrollable-content section"> 
+ <div class="scrollable-content section">
   <form class="form"  role="form" ng-submit='addIngredient()'>
     <fieldset>
       <legend>New Ingredient</legend>
@@ -66,7 +60,7 @@ input.searchWarning {background-color: yellow;}
   <table class="table">
     <thead>
       <tr>
-        <th ng-click="orderByMe('name')">Ingredient</th>
+        <th ng-click="orderByMe('name')">Ingredient ({{ ingredients.length }})</th>
         <th ng-click="orderByMe('quantity')">Quantity</th>
         <th ng-click="orderByMe('unit')">Unit</th>
         <th ng-click="orderByMe('store')">Store</th>
@@ -77,24 +71,24 @@ input.searchWarning {background-color: yellow;}
       <tr ng-repeat="ingredient in ingredients | filter : search | orderBy:myOrderBy:reverse">
         <td>{{ingredient.name}}</td>
         <td><input required class="form-control"
-		type="number" step="0.01"  
+		type="number" step="0.01"
 		ng-model-options="{ allowInvalid: false }"
-		ng-model="ingredient.quantity" 
+		ng-model="ingredient.quantity"
 		ng-blur="save(ingredient)"></td>
         <td>{{ingredient.unit}}</td>
         <td><input class="form-control"
-		type="text"  
-		ng-model="ingredient.store" 
+		type="text"
+		ng-model="ingredient.store"
 		ng-blur="save(ingredient)"></td>
-        <td><input class="col-xs-3 form-control text-right" 
+        <td><input class="col-xs-3 form-control text-right"
 		required
-		type="number" step="0.01"  
-		ng-model="ingredient.price" 
+		type="number" step="0.01"
+		ng-model="ingredient.price"
 		ng-model-options="{ allowInvalid: false }"
 		ng-blur="save(ingredient)"></td>
         <td class="text-right">
-           <button class="btn btn-danger" ui-turn-on="modal1" ng-click="setDeleteIngredient(ingredient)">
-              <i class="fa fa-trash-o" aria-hidden="true"></i>
+           <button class="btn btn-danger" ui-turn-on="modal1" ng-click="remove(ingredient)">
+              <span class="glyphicon glyphicon-trash"></span>
            </button>
         </td>
       </tr>

@@ -7,15 +7,9 @@
 // has dependent on mobile-angular-ui
 //
 var app = angular.module('MobileAngularUiExamples', [
-  'ngRoute',
-  'mobile-angular-ui',
+  'ui.router',
+  'ui.bootstrap',
   'firebase',
-  // touch/drag feature: this is from 'mobile-angular-ui.gestures.js'.
-  // This is intended to provide a flexible, integrated and and
-  // easy to use alternative to other 3rd party libs like hammer.js, with the
-  // final pourpose to integrate gestures into default ui interactions like
-  // opening sidebars, turning switches on/off ..
-  'mobile-angular-ui.gestures',
   'ngFileUpload'
 ]);
 
@@ -81,70 +75,71 @@ app.factory("fileReader",
 ["$q", "$log", fileReader]);
 
 
-app.run(function($transform, $rootScope, $location) {
-  window.$transform = $transform;
-  $rootScope.$on("$routeChangeError", function(event, next, previous, error) {
+
+app.run(["$rootScope", "$state", function($rootScope, $state) {
+  $rootScope.$on("$stateChangeError", function(event, toState, toParams, fromState, fromParams, error) {
     // We can catch the error thrown when the $requireSignIn promise is rejected
     // and redirect the user back to the home page
     if (error === "AUTH_REQUIRED") {
-      $location.path("/");
+      $state.go("home");
     }
   });
-});
 
-//
-// You can configure ngRoute as always, but to take advantage of SharedState location
-// feature (i.e. close sidebar on backbutton) you should setup 'reloadOnSearch: false'
-// in order to avoid unwanted routing.
-//
-app.config(function($routeProvider) {
-  $routeProvider.when('/', {
-    templateUrl: 'home.html',
-    controller: 'HomeCtrl',
-    reloadOnSearch: false,
-    resolve: {
-      // controller will not be loaded until $waitForSignIn resolves
-      // Auth refers to our $firebaseAuth wrapper in the factory below
-      "currentAuth": ["Auth", function(Auth) {
-        // $waitForSignIn returns a promise so the resolve waits for it to complete
-        return Auth.$waitForSignIn();
-      }]
-    }
+  $rootScope.$on('$stateNotFound',
+    function(event, unfoundState, fromState, fromParams){
+      $state.go("home");
   });
-  $routeProvider.when('/ingredients', {templateUrl: 'ingredients.html', reloadOnSearch: false,
-  resolve: {
-    // controller will not be loaded until $requireSignIn resolves
-    // Auth refers to our $firebaseAuth wrapper in the factory below
-    "currentAuth": ["Auth", function(Auth) {
-      // $requireSignIn returns a promise so the resolve waits for it to complete
-      // If the promise is rejected, it will throw a $routeChangeError (see above)
-      return Auth.$requireSignIn();
-    }]
-  }
+}]);
 
-});
-//  $routeProvider.when('/scroll', {templateUrl: 'scroll.html', reloadOnSearch: false});
-//  $routeProvider.when('/toggle', {templateUrl: 'toggle.html', reloadOnSearch: false});
-//  $routeProvider.when('/tabs', {templateUrl: 'tabs.html', reloadOnSearch: false});
-$routeProvider.when('/accordion', {templateUrl: 'accordion.html', reloadOnSearch: false,
-resolve: {
-  // controller will not be loaded until $requireSignIn resolves
-  // Auth refers to our $firebaseAuth wrapper in the factory below
-  "currentAuth": ["Auth", function(Auth) {
-    // $requireSignIn returns a promise so the resolve waits for it to complete
-    // If the promise is rejected, it will throw a $routeChangeError (see above)
-    return Auth.$requireSignIn();
-  }]
-}
-});
-//  $routeProvider.when('/overlay', {templateUrl: 'overlay.html', reloadOnSearch: false});
-//  $routeProvider.when('/forms', {templateUrl: 'forms.html', reloadOnSearch: false});
-//  $routeProvider.when('/dropdown', {templateUrl: 'dropdown.html', reloadOnSearch: false});
-//  $routeProvider.when('/touch', {templateUrl: 'touch.html', reloadOnSearch: false});
-//  $routeProvider.when('/swipe', {templateUrl: 'swipe.html', reloadOnSearch: false});
-//  $routeProvider.when('/drag', {templateUrl: 'drag.html', reloadOnSearch: false});
-//  $routeProvider.when('/drag2', {templateUrl: 'drag2.html', reloadOnSearch: false});
-});
+app.config(["$stateProvider", "$urlRouterProvider", function ($stateProvider, $urlRouterProvider) {
+  $urlRouterProvider.otherwise("/home");
+
+  $stateProvider
+    .state("home", {
+      // the rest is the same for ui-router and ngRoute...
+      controller: "HomeCtrl",
+      url: "/home",
+      templateUrl: "home.html",
+      resolve: {
+        // controller will not be loaded until $waitForSignIn resolves
+        // Auth refers to our $firebaseAuth wrapper in the factory below
+        "currentAuth": ["Auth", function(Auth) {
+          // $waitForSignIn returns a promise so the resolve waits for it to complete
+          return Auth.$waitForSignIn();
+        }]
+      }
+    })
+    .state("ingredients", {
+      // the rest is the same for ui-router and ngRoute...
+      controller: "IngredientsCtrl",
+      url: "/ingredients",
+      templateUrl: "ingredients.html",
+      resolve: {
+        // controller will not be loaded until $requireSignIn resolves
+        // Auth refers to our $firebaseAuth wrapper in the factory below
+        "currentAuth": ["Auth", function(Auth) {
+          // $requireSignIn returns a promise so the resolve waits for it to complete
+          // If the promise is rejected, it will throw a $stateChangeError (see above)
+          return Auth.$requireSignIn();
+        }]
+      }
+    })
+    .state("recipes", {
+      // the rest is the same for ui-router and ngRoute...
+      // controller: "IngredientsCtrl",
+      url: "/recipes",
+      templateUrl: "recipes.html",
+      resolve: {
+        // controller will not be loaded until $requireSignIn resolves
+        // Auth refers to our $firebaseAuth wrapper in the factory below
+        "currentAuth": ["Auth", function(Auth) {
+          // $requireSignIn returns a promise so the resolve waits for it to complete
+          // If the promise is rejected, it will throw a $stateChangeError (see above)
+          return Auth.$requireSignIn();
+        }]
+      }
+    });
+}]);
 
 app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStorage, $filter) {
   var ref = firebase.database().ref().child("ingredients");
@@ -237,4 +232,10 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
     });
   }
 
+});
+
+app.controller('CollapseDemoCtrl', function ($scope) {
+  $scope.isNavCollapsed = true;
+  $scope.isCollapsed = false;
+  $scope.isCollapsedHorizontal = false;
 });

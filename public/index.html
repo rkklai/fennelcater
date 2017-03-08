@@ -8,16 +8,12 @@
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimal-ui" />
   <meta name="apple-mobile-web-app-status-bar-style" content="yes" />
   <link rel="shortcut icon" href="/assets/img/favicon.png" type="image/x-icon" />
-  <link rel="stylesheet" href="/dist/css/mobile-angular-ui-hover.min.css" />
-  <link rel="stylesheet" href="/dist/css/mobile-angular-ui-base.min.css" />
-  <link rel="stylesheet" href="/dist/css/mobile-angular-ui-desktop.min.css" />
-  <link rel="stylesheet" href="demo.css" />
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular-route.min.js"></script>
-  <script src="/dist/js/mobile-angular-ui.min.js"></script>
-  <!-- Required to use $touch, $swipe, $drag and $translate services -->
-  <script src="/dist/js/mobile-angular-ui.gestures.min.js"></script>
-
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
+  <script src="https://unpkg.com/angular-ui-router@1.0.0-rc.1/release/angular-ui-router.js"></script>
+   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.js"></script>
+   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
+   <script src="dist/js/ui-bootstrap-tpls-2.5.0.min.js"></script>
+   <link href="//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
   <script src="ng-file-upload.min.js"></script>
 
   <!-- Firebase -->
@@ -44,48 +40,36 @@
   <script src="home.js"></script>
 </head>
 
-<body
-ng-app="MobileAngularUiExamples"
-ui-prevent-touchmove-defaults
->
-
-<!-- Sidebars -->
-<div ng-include="'sidebar.html'"
-ui-track-as-search-param="true"
-class="sidebar sidebar-left"></div>
-
-
-<div class="app"
-ui-swipe-right="Ui.turnOn('uiSidebarLeft')"
-ui-swipe-left="Ui.turnOff('uiSidebarLeft')">
-
-<!-- Navbars -->
-
-<div class="navbar navbar-app navbar-absolute-top">
-  <div class="navbar-brand navbar-brand-center" ui-yield-to="title">
-    Fennel Cater
-  </div>
-
-  <div class="btn-group pull-left">
-    <div ui-toggle="uiSidebarLeft" class="btn sidebar-toggle">
-      <i class="fa fa-bars"></i> Menu
-    </div>
-  </div>
-</div>
-
-
-<!-- App Body -->
-<div class="app-body" ng-class="{loading: loading}">
-  <div ng-show="loading" class="app-content-loading">
-    <i class="fa fa-spinner fa-spin loading-spinner"></i>
-  </div>
-  <div class="app-content">
-    <ng-view></ng-view>
+<body ng-app="MobileAngularUiExamples">
+<style>
+  .horizontal-collapse {
+    height: 70px;
+  }
+  .navbar-collapse.in {
+    overflow-y: hidden;
+  }
+</style>
+<div ng-controller="CollapseDemoCtrl">
+	<nav class="navbar navbar-default" role="navigation">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" ng-click="isNavCollapsed = !isNavCollapsed">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" ui-sref="home" ui-sref-active="active">Home</a>
+		</div>
+		<div class="collapse navbar-collapse" uib-collapse="isNavCollapsed">
+			<ul class="nav navbar-nav">
+				<li><a ui-sref="ingredients" ui-sref-active="active" ng-click="isNavCollapsed = 0">Ingredients</a></li>
+				<li><a ui-sref="recipes" ui-sref-active="active" ng-click="isNavCollapsed = 0">Recipes</a></li>
+			</ul>
+		</div>
+	</nav>
+  <div>
+     <ui-view></ui-view>
   </div>
 </div>
-
-</div><!-- ~ .app -->
-
-<div ui-yield-to="modals"></div>
 </body>
 </html>
