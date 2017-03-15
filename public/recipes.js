@@ -90,10 +90,10 @@ app.controller('RecipesCtrl',  function($scope, $firebaseArray, AngularDB, $uibM
 
   $scope.openNewRecipe = function () {
     $scope.recipe = {
-            name: '',
+            name: null,
             ingredients: [],
-            otherIngredients: '',
-            instruction: ''
+            otherIngredients: null,
+            instruction: null
           };
     $scope.createNewRecipe = 1;
 

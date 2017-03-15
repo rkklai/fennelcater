@@ -34,7 +34,7 @@
            <td>
              <!-- editable group (select-remote) -->
              <span editable-select="ingredient.key" e-name="ingredient"  e-form="rowform"
-             e-ng-options="ing.key as (ing.name + ' (' + ing.unit + ')') for ing in availableIngredients">
+             e-ng-options="ing.key as (ing.name + ' (' + ing.unit + ')') for ing in availableIngredients | orderBy:'name'">
                {{ showIngredient(ingredient.key) || 'empty' }}
              </span>
            </td>
@@ -48,10 +48,10 @@
              <!-- form -->
              <form editable-form name="rowform" onbeforesave="saveUser($data, user.id)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="inserted == ingredient">
                <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-primary">
-                 OK
+                 <span class="glyphicon glyphicon-ok">
                </button>
                <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel()" class="btn btn-default">
-                 cancel
+                 <span class="glyphicon glyphicon-remove">
                </button>
              </form>
              <div class="buttons" ng-show="!rowform.$visible">
