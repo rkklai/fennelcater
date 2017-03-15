@@ -196,6 +196,33 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
     return ingredientsDB;
   }
 
+  this.ingredientsUniq = function() {
+    var ingredientsArray = [];
+    var i = 0;
+    var j = 0;
+
+    for (i = 0; i < ingredientsDB.length; i++) {
+      var found = 0;
+      for (j = 0; j < ingredientsArray.length; j++) {
+        if ( ingredientsDB[i].name == ingredientsArray[j].name &&
+                ingredientsDB[i].unit == ingredientsArray[j].unit) {
+            found = 1;
+            break;
+        }
+      }
+
+      if ( ! found ) {
+        ingredientsArray.push({key: ingredientsDB[i].$id,
+                          name: ingredientsDB[i].name,
+                          unit: ingredientsDB[i].unit})
+      }
+    }
+
+    ingredientsArray.sort();
+
+    return ingredientsArray;
+  }
+
   // recipes
   this.removeRecipe = function(x) {
     return recipesDB.$remove(x);

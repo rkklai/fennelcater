@@ -27,8 +27,8 @@
          <tr ng-repeat="ingredient in recipe.ingredients">
            <td>
              <!-- editable group (select-remote) -->
-             <span editable-select="ingredient.key" e-name="ingredient" onshow="loadGroups()" e-form="rowform"
-             e-ng-options="ing.$id as (ing.name + ' (' + ing.unit + ')') for ing in availableIngredients">
+             <span editable-select="ingredient.key" e-name="ingredient"  e-form="rowform"
+             e-ng-options="ing.key as (ing.name + ' (' + ing.unit + ')') for ing in availableIngredients">
                {{ showIngredient(ingredient.key) || 'empty' }}
              </span>
            </td>
