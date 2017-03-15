@@ -2,15 +2,13 @@
 
 'use strict';
 
-//
-// Here is how to define your module
-// has dependent on mobile-angular-ui
-//
-var app = angular.module('MobileAngularUiExamples', [
+
+var app = angular.module('FennelCaterApp', [
   'ui.router',
   'ui.bootstrap',
   'firebase',
-  'ngFileUpload'
+  'ngFileUpload',
+  "xeditable"
 ]);
 
 // let's create a re-usable factory that generates the $firebaseAuth instance
@@ -74,7 +72,9 @@ var fileReader = function ($q, $log) {
 app.factory("fileReader",
 ["$q", "$log", fileReader]);
 
-
+app.run(function(editableOptions) {
+  editableOptions.theme = 'bs3'; // bootstrap3 theme. Can be also 'bs2', 'default'
+});
 
 app.run(["$rootScope", "$state", function($rootScope, $state) {
   $rootScope.$on("$stateChangeError", function(event, toState, toParams, fromState, fromParams, error) {
@@ -126,7 +126,7 @@ app.config(["$stateProvider", "$urlRouterProvider", function ($stateProvider, $u
     })
     .state("recipes", {
       // the rest is the same for ui-router and ngRoute...
-      // controller: "IngredientsCtrl",
+      controller: "RecipesCtrl",
       url: "/recipes",
       templateUrl: "recipes.html",
       resolve: {
@@ -142,8 +142,15 @@ app.config(["$stateProvider", "$urlRouterProvider", function ($stateProvider, $u
 }]);
 
 app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStorage, $filter) {
-  var ref = firebase.database().ref().child("ingredients");
-  var ingredientsDB = $firebaseArray(ref);
+  // ingredients
+  var ingredientRef = firebase.database().ref().child("ingredients");
+  var ingredientsDB = $firebaseArray(ingredientRef);
+
+  // recipes
+  var recipesRef = firebase.database().ref().child("recipes");
+  var recipesDB = $firebaseArray(recipesRef);
+
+  // backups
   var storageRef = "";
   var lastRef = firebase.database().ref('lastModified');
   var lastModifiedDB = $firebaseObject(lastRef);
@@ -154,7 +161,8 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
   this.authenticate = function(login) {
     if ( authenticated ^ login )
     {
-      ingredientsDB = $firebaseArray(ref);
+      ingredientsDB = $firebaseArray(ingredientRef);
+      recipesDB = $firebaseArray(recipesRef);
       lastModifiedDB = $firebaseObject(lastRef);
       backupDB = $firebaseArray(backupRef);
 
@@ -165,6 +173,11 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
     {
       return 0;
     }
+  }
+
+  // ingredients
+  this.getIngredient = function(key) {
+    return ingredientsDB.$getRecord(key);
   }
 
   this.remove = function(x) {
@@ -183,6 +196,25 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
     return ingredientsDB;
   }
 
+  // recipes
+  this.removeRecipe = function(x) {
+    return recipesDB.$remove(x);
+  }
+
+  this.addRecipe = function(x) {
+    return recipesDB.$add(x);
+  }
+
+  this.saveRecipe = function(x) {
+    return recipesDB.$save(x);
+  }
+
+  this.recipes = function() {
+    return recipesDB;
+  }
+
+
+  // backups
   this.lastModified = function() {
     return lastModifiedDB;
   }

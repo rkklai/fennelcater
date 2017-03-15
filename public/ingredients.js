@@ -4,7 +4,7 @@
 app.controller('IngredientsCtrl',  function($scope, $firebaseArray, AngularDB, $uibModal) {
   // create a synchronized array
   // click on `index.html` above to see it used in the DOM!
- // $scope.ingredients = $firebaseArray(ref);
+  // $scope.ingredients = $firebaseArray(ref);
   $scope.ingredients = AngularDB.ingredients();
   $scope.searchWarn = 0;
   $scope.addedIngredient = 0;
@@ -27,39 +27,39 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray, AngularDB, $
 
 
     var found = $scope.ingredients.find( x => x.name.toLowerCase() == lowerName
-              && x.quantity == $scope.ingredientQuantity
-              && x.unit.toLowerCase() == lowerUnit
-              && x.store.toLowerCase() == lowerStore
-	);
+                  && x.quantity == $scope.ingredientQuantity
+                  && x.unit.toLowerCase() == lowerUnit
+                  && x.store.toLowerCase() == lowerStore );
+
     if ( found ) {
-       $scope.search = $scope.iname;
-       $scope.duplicateIngredientName = $scope.iname + " ($" + $scope.ingredientPrice + "/" + $scope.ingredientUnit + "@" + $scope.ingredientStore + ")";
-       $scope.searchWarn = 1;
+      $scope.search = $scope.iname;
+      $scope.duplicateIngredientName = $scope.iname + " ($" + $scope.ingredientPrice + "/" + $scope.ingredientUnit + "@" + $scope.ingredientStore + ")";
+      $scope.searchWarn = 1;
     } else {
       if ( ! $scope.ingredientStore ) {
-	 $scope.ingredientStore = "";
+        $scope.ingredientStore = "";
       }
 
       AngularDB.add({
-	      	name: $scope.iname,
-      		quantity: $scope.ingredientQuantity,
-      		unit: $scope.ingredientUnit,
-                store: $scope.ingredientStore,
-      		price: $scope.ingredientPrice
-     	}).then(function() {
-      		$scope.addedIngredientName = $scope.iname + " ($" + $scope.ingredientPrice + "/" + $scope.ingredientUnit + "@" + $scope.ingredientStore + ")";
-                $scope.addedIngredient = 1;
-	      	$scope.iname = "";
-       		$scope.ingredientQuantity = "";
-       		$scope.ingredientUnit = "";
-                $scope.ingredientStore = "";
-      		$scope.ingredientPrice = "";
-     	});
+        name: $scope.iname,
+        quantity: $scope.ingredientQuantity,
+        unit: $scope.ingredientUnit,
+        store: $scope.ingredientStore,
+        price: $scope.ingredientPrice
+      }).then(function() {
+        $scope.addedIngredientName = $scope.iname + " ($" + $scope.ingredientPrice + "/" + $scope.ingredientUnit + "@" + $scope.ingredientStore + ")";
+        $scope.addedIngredient = 1;
+        $scope.iname = "";
+        $scope.ingredientQuantity = "";
+        $scope.ingredientUnit = "";
+        $scope.ingredientStore = "";
+        $scope.ingredientPrice = "";
+      });
     }
   };
 
   $scope.save = function(x) {
-	return AngularDB.save(x);
+    return AngularDB.save(x);
   }
 
   $scope.myOrderBy = "name";
@@ -88,14 +88,6 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray, AngularDB, $
     $scope.myOrderBy = x;
   }
 
-  $scope.setDeleteIngredient = function(d) {
-    // reset values
-    $scope.searchWarn = 0;
-    $scope.addedIngredient = 0;
-
-    $scope.deleteIngredient = d;
-  }
-
   $scope.clearSearch = function() {
     $scope.search = "";
     $scope.searchWarn = 0;
@@ -115,15 +107,16 @@ app.controller('IngredientsCtrl',  function($scope, $firebaseArray, AngularDB, $
 
   $scope.open = function (ingredient) {
     $scope.deleteIngredient = ingredient;
+
     // var parentElem = parentSelector ?
     //   angular.element($document[0].querySelector('.modal-demo ' + parentSelector)) : undefined;
     $scope.modalInstance = $uibModal.open({
       // animation: $ctrl.animationsEnabled,
       ariaLabelledBy: 'modal-title',
       ariaDescribedBy: 'modal-body',
-      templateUrl: 'myModalContent.html',
-  //    controller: 'ModalInstanceCtrl',
-  //    controllerAs: '$ctrl',
+      templateUrl: 'deleteIngredient.html',
+      //    controller: 'ModalInstanceCtrl',
+      //    controllerAs: '$ctrl',
       scope: $scope
     });
   };

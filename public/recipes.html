@@ -1,9 +1,146 @@
 <div class="scrollable">
+  <script type="text/ng-template" id="deleteRecipe.html">
+      <div class="modal-header">
+          <h3 class="modal-title" id="modal-title">Warning!</h3>
+      </div>
+      <div class="modal-body" id="modal-body">
+          Are you sure to delete <b>{{ deleteIngredient.name + ' ($' + deleteIngredient.price + '/' + deleteIngredient.quantity + deleteIngredient.unit + '@' + deleteIngredient.store }})</b>?
+      </div>
+      <div class="modal-footer">
+          <button class="btn btn-danger" type="button" ng-click="dismissDelete(deleteIngredient)">Delete</button>
+          <button class="btn btn-success" type="button" ng-click="dismissDelete()">Cancel</button>
+      </div>
+  </script>
+
+  <script type="text/ng-template" id="newRecipe.html">
+      <div class="modal-header">
+          <h3 class="modal-title" id="modal-title-new-recipe">New Recipe</h3>
+      </div>
+      <div class="modal-body" id="modal-body-new-recipe">
+
+            <div class="form-group has-success has-feedback">
+              <input required class="form-control"  type="text"
+              ng-model="recipe.name"
+              placeholder="Recipe name"/>
+
+              <table class="table table-bordered table-hover table-condensed">
+                 <tr>
+                   <td>Ingredient</td>
+                   <td>Quantity</td>
+                   <td>Edit</td>
+                 </tr>
+                 <tr ng-repeat="ingredient in recipe.ingredients">
+                   <td>
+                     <!-- editable group (select-remote) -->
+                     <span editable-select="ingredient.key" e-name="ingredient" onshow="loadGroups()" e-form="rowform" e-ng-options="ing.$id as (ing.name + ' (' + ing.unit + ')') for ing in availableIngredients">
+                       {{ showIngredient(ingredient.key) || 'empty' }}
+                     </span>
+                   </td>
+                   <td>
+                   <!-- editable username (text with validation) -->
+                   <span editable-number="ingredient.quantity" e-step="0.01" e-name="name" e-form="rowform">
+                   {{ ingredient.quantity || 'empty' }}
+                   </span>
+                   </td>
+                   <td style="white-space: nowrap">
+                     <!-- form -->
+                     <form editable-form name="rowform" onbeforesave="saveUser($data, user.id)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="inserted == ingredient">
+                       <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-primary">
+                         save
+                       </button>
+                       <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel()" class="btn btn-default">
+                         cancel
+                       </button>
+                     </form>
+                     <div class="buttons" ng-show="!rowform.$visible">
+                       <button type="button" class="btn btn-primary" ng-click="rowform.$show()">edit</button>
+                       <button type="button" class="btn btn-danger" ng-click="removeIngredient(recipe, $index)">del</button>
+                     </div>
+                   </td>
+                 </tr>
+               </table>
+
+               <button type="button" class="btn btn-default" ng-click="addIngredient(recipe)">Add ingredient</button>
+
+              <textarea rows="5"
+                ng-model="recipe.otherIngredients"
+                class="form-control"
+                placeholder="Other ingredients">
+              </textarea>
+
+              <textarea rows="5"
+                ng-model="recipe.instruction"
+                class="form-control"
+                placeholder="Instruction">
+              </textarea>
+            </div>
+
+      </div>
+      <div class="modal-footer">
+          <button class="btn btn-primary" type="button" ng-click="dismissNewRecipe(recipe)">Add</button>
+          <button class="btn btn-warning" type="button" ng-click="dismissNewRecipe()">Cancel</button>
+      </div>
+  </script>
+
   <div class="scrollable-content">
     <div class="section">
       <uib-accordion close-others="true">
-        <div uib-accordion-group class="panel-default" heading="Recipe {{i}}" ng-repeat="i in [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]">
-          Recipe...
+        <div uib-accordion-group class="panel-default" heading="{{recipe.name}}" ng-repeat="recipe in recipes">
+          <div class="form-group has-success has-feedback">
+            <input required class="form-control"  type="text"
+            ng-model="recipe.name"
+            placeholder="Recipe name"/>
+
+            <table class="table table-bordered table-hover table-condensed">
+               <tr>
+                 <td>Ingredient</td>
+                 <td>Quantity</td>
+                 <td>Edit</td>
+               </tr>
+               <tr ng-repeat="ingredient in recipe.ingredients">
+                 <td>
+                   <!-- editable group (select-remote) -->
+                   <span editable-select="ingredient.key" e-name="ingredient" onshow="loadGroups()" e-form="rowform" e-ng-options="ing.$id as (ing.name + ' (' + ing.unit + ')') for ing in availableIngredients">
+                     {{ showIngredient(ingredient.key) || 'empty' }}
+                   </span>
+                 </td>
+                 <td>
+                 <!-- editable username (text with validation) -->
+                 <span editable-number="ingredient.quantity" e-step="0.01" e-name="name" e-form="rowform">
+                 {{ ingredient.quantity || 'empty' }}
+                 </span>
+                 </td>
+                 <td style="white-space: nowrap">
+                   <!-- form -->
+                   <form editable-form name="rowform" onbeforesave="saveUser($data, user.id)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="false">
+                     <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-primary">
+                       save
+                     </button>
+                     <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel()" class="btn btn-default">
+                       cancel
+                     </button>
+                   </form>
+                   <div class="buttons" ng-show="!rowform.$visible">
+                     <button type="button" class="btn btn-primary" ng-click="rowform.$show()">edit</button>
+                     <button type="button" class="btn btn-danger" ng-click="removeIngredient(recipe, $index)">del</button>
+                   </div>
+                 </td>
+               </tr>
+             </table>
+
+             <button type="button" class="btn btn-default" ng-click="addIngredient(recipe)">Add ingredient</button>
+            <textarea rows="5"
+              ng-model="recipe.otherIngredients"
+              class="form-control"
+              placeholder="Other ingredients">
+            </textarea>
+
+            <textarea rows="5"
+              ng-model="recipe.instruction"
+              class="form-control"
+              placeholder="Instruction">
+            </textarea>
+          </div>
         </div>
       </uib-accordion>
       </div>
@@ -13,7 +150,7 @@
 button.fixed { position: fixed; bottom: 20px; right: 20px; }
 </style>
 
-<button type="button" class="fixed btn btn-default" aria-label="Left Align">
-<i class="fa fa-plus" aria-hidden="true"></i>
+<button type="button" class="fixed btn btn-default" aria-label="Left Align" ng-click="openNewRecipe()">
+<span class="glyphicon glyphicon-plus"></span>
 </button>
 </div>
