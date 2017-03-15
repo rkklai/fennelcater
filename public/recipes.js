@@ -3,9 +3,14 @@
 
 app.controller('RecipesCtrl',  function($scope, $firebaseArray, AngularDB, $uibModal) {
   $scope.recipes = AngularDB.recipes();
-  $scope.searchWarn = 0;
-  $scope.addedIngredient = 0;
+  $scope.search = "";
+  $scope.order = 'name';
+  $scope.nameReverse = false;
+  $scope.categoryReverse = false;
+  $scope.reverse = false;
   $scope.deleteRecipe ="not yet";
+  $scope.lastSavedRecipe = { recipe: null, timestamp: null };
+
   $scope.availableIngredients = AngularDB.ingredientsUniq();
 
 
@@ -41,6 +46,8 @@ app.controller('RecipesCtrl',  function($scope, $firebaseArray, AngularDB, $uibM
   };
 
   $scope.saveRecipe = function(x) {
+    $scope.lastSavedRecipe.recipe = x;
+    $scope.lastSavedRecipe.timestamp = new Date().getTime();
     return AngularDB.saveRecipe(x);
   }
 
@@ -62,7 +69,7 @@ app.controller('RecipesCtrl',  function($scope, $firebaseArray, AngularDB, $uibM
     }
   }
 
-  $scope.open = function (recipe) {
+  $scope.openDeleteRecipe = function (recipe) {
     $scope.deleteRecipe = recipe;
     $scope.modalInstance = $uibModal.open({
       // animation: $ctrl.animationsEnabled,
@@ -91,6 +98,8 @@ app.controller('RecipesCtrl',  function($scope, $firebaseArray, AngularDB, $uibM
   $scope.openNewRecipe = function () {
     $scope.recipe = {
             name: null,
+            person: null,
+            category: null,
             ingredients: [],
             otherIngredients: null,
             instruction: null
@@ -108,11 +117,29 @@ app.controller('RecipesCtrl',  function($scope, $firebaseArray, AngularDB, $uibM
     });
   };
 
-  $scope.showIngredient = function(key) {
-    var ingredient = AngularDB.getIngredient(key);
+  $scope.showIngredient = function(ing) {
+    if ( ing.name && ing.unit )
+    {
+      return ing.name + " (" + ing.unit + ")";
+    }
+
+    var ingredient = AngularDB.getIngredient(ing.key);
     if ( ingredient )
     {
+      ing.name = ingredient.name;
+      ing.unit = ingredient.unit;
       return ingredient.name + " (" + ingredient.unit + ")";
+    }
+    else
+    {
+      return null;
+    }
+  }
+
+  $scope.required = function( data ) {
+    if ( ! data )
+    {
+      return "Required field";
     }
     else
     {

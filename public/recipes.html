@@ -4,10 +4,10 @@
           <h3 class="modal-title" id="modal-title">Warning!</h3>
       </div>
       <div class="modal-body" id="modal-body">
-          Are you sure to delete <b>{{ deleteIngredient.name + ' ($' + deleteIngredient.price + '/' + deleteIngredient.quantity + deleteIngredient.unit + '@' + deleteIngredient.store }})</b>?
+          Are you sure to delete recipe <b>{{ deleteRecipe.name  }}</b>?
       </div>
       <div class="modal-footer">
-          <button class="btn btn-danger" type="button" ng-click="dismissDelete(deleteIngredient)">Delete</button>
+          <button class="btn btn-danger" type="button" ng-click="dismissDelete(deleteRecipe)">Delete</button>
           <button class="btn btn-success" type="button" ng-click="dismissDelete()">Cancel</button>
       </div>
   </script>
@@ -18,11 +18,15 @@
       ng-model="recipe.name" ng-show="createNewRecipe"
       placeholder="Recipe name"/>
       <input required class="form-control"  type="text"
+      ng-model="recipe.category" ng-show="createNewRecipe"
+      placeholder="Recipe category"/>
+      <input required class="form-control"  type="number"
       ng-model="recipe.person" ng-show="createNewRecipe"
       placeholder="Serving size (persons)"/>
 
-      <a href="#" ng-show="!createNewRecipe" editable-text="recipe.name" e-label="Recipe name">Recipe: {{ recipe.name }}</a><br>
-      <a href="#" ng-show="!createNewRecipe" editable-text="recipe.person" e-label="Serving size">Serving size: {{ recipe.person }} persons</a>
+      <a href="#" ng-show="!createNewRecipe" editable-text="recipe.name" onbeforesave="required($data)" e-label="Name">Recipe: {{ recipe.name }}</a><br>
+      <a href="#" ng-show="!createNewRecipe" editable-text="recipe.category" onbeforesave="required($data)" e-label="Category">Category: {{ recipe.category }}</a><br>
+      <a href="#" ng-show="!createNewRecipe" editable-text="recipe.person" onbeforesave="required($data)" e-label="Serving size">Serving size: {{ recipe.person }} persons</a>
 
       <table class="table table-condensed">
          <tr>
@@ -33,21 +37,21 @@
          <tr ng-repeat="ingredient in recipe.ingredients">
            <td>
              <!-- editable group (select-remote) -->
-             <span editable-select="ingredient.key" e-name="ingredient"  e-form="rowform"
+             <span onbeforesave="required($data)" editable-select="ingredient.key" e-name="ingredient"  e-form="rowform"
              e-ng-options="ing.key as (ing.name + ' (' + ing.unit + ')') for ing in availableIngredients | orderBy:'name'">
-               {{ showIngredient(ingredient.key) || 'empty' }}
+               {{ showIngredient(ingredient) || 'empty' }}
              </span>
            </td>
            <td>
            <!-- editable username (text with validation) -->
-           <span editable-number="ingredient.quantity" e-step="0.01" e-name="name" e-form="rowform">
+           <span onbeforesave="required($data)" editable-number="ingredient.quantity" e-step="0.01" e-name="name" e-form="rowform">
            {{ ingredient.quantity || 'empty' }}
            </span>
            </td>
            <td style="white-space: nowrap">
              <!-- form -->
-             <form editable-form name="rowform" onbeforesave="saveUser($data, user.id)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="inserted == ingredient">
-               <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-primary">
+             <form editable-form name="rowform" onbeforesave="required($data)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="inserted == ingredient">
+               <button type="submit" ng-disabled="rowform.$waiting && ! ( ingredient.key && ingredient.quantity)" class="btn btn-primary">
                  <span class="glyphicon glyphicon-ok">
                </button>
                <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel()" class="btn btn-default">
@@ -91,7 +95,7 @@
 
       </div>
       <div class="modal-footer">
-          <button class="btn btn-primary" type="button" ng-click="dismissNewRecipe(recipe)">Add</button>
+          <button class="btn btn-primary" type="button" ng-click="dismissNewRecipe(recipe)" ng-disabled="! ( recipe.name && recipe.person && recipe.category && recipe.ingredients.length )">Add</button>
           <button class="btn btn-warning" type="button" ng-click="dismissNewRecipe()">Cancel</button>
       </div>
   </script>
@@ -99,11 +103,23 @@
   <div class="scrollable-content">
     <div class="section">
       <uib-accordion close-others="true">
-        <div uib-accordion-group class="panel-default" heading="{{recipe.name}}" ng-repeat="recipe in recipes">
+        <div>
+            <input type="text" class="form-control" placeholder="Search (name, category)" ng-model="search">
+            <button class="btn btn-default" type="button" ng-click="search=''">Clear</button>
+            <button class="btn btn-default" type="button" ng-click="order='name';nameReverse=!nameReverse;reverse=nameReverse">Sort by name</button>
+            <button class="btn btn-default" type="button" ng-click="order='category';categoryReverse=!categoryReverse;reverse=categoryReverse">Sort by category</button>
+        </div>
+        <div uib-accordion-group class="panel-default"
+            heading="{{recipe.name}} - {{ recipe.category || 'uncategorized' }}"
+            ng-repeat="recipe in recipes | filter:search | orderBy:order:reverse">
            <div id="tpl-content" ng-include src="'commonRecipe.html'"></div>
+           <div class="alert alert-success alert-dismissable fade in" ng-show="lastSavedRecipe.recipe == recipe">
+             <button class="close" data-dismiss="alert" aria-label="close" ng-click="lastSavedRecipe.recipe=null">&times;</button>
+             <strong>Success!</strong> Saved recipe {{ recipe.name }} on {{ lastSavedRecipe.timestamp | date:'yyyy-MM-dd HH:mm:ss' }}
+           </div>
            <div>
-               <button class="btn btn-primary" type="button" ng-click="saveRecipe(recipe)">Save</button>
-               <button class="btn btn-danger" type="button" ng-click="removeRecipe(recipe)">Delete</button>
+               <button class="btn btn-primary" type="button" ng-click="saveRecipe(recipe)" ng-disabled="! ( recipe.name && recipe.person && recipe.category && recipe.ingredients.length )">Save</button>
+               <button class="btn btn-danger" type="button" ng-click="openDeleteRecipe(recipe)">Delete</button>
            </div>
         </div>
       </uib-accordion>
