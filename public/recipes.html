@@ -102,13 +102,19 @@
 
   <div class="scrollable-content">
     <div class="section">
-      <uib-accordion close-others="true">
-        <div>
+      <div >
+          <div class="input-group">
             <input type="text" class="form-control" placeholder="Search (name, category)" ng-model="search">
-            <button class="btn btn-default" type="button" ng-click="search=''">Clear</button>
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="button" ng-click="search=''">Clear</button>
+            </span>
+          </div>
+          <div class="btn-group">
             <button class="btn btn-default" type="button" ng-click="order='name';nameReverse=!nameReverse;reverse=nameReverse">Sort by name</button>
-            <button class="btn btn-default" type="button" ng-click="order='category';categoryReverse=!categoryReverse;reverse=categoryReverse">Sort by category</button>
-        </div>
+            <button class="btn btn-default" type="button" ng-click="order='category';categoryReverse=!categoyReverse;reverse=categoryReverse">Sort by category</button>
+          </div>
+      </div>
+      <uib-accordion close-others="true">
         <div uib-accordion-group class="panel-default"
             heading="{{recipe.name}} - {{ recipe.category || 'uncategorized' }}"
             ng-repeat="recipe in recipes | filter:search | orderBy:order:reverse">

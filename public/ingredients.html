@@ -60,10 +60,12 @@
         <strong>Warning!</strong> Duplicate ingredient {{ duplicateIngredientName }}): please edit it in the table or delete it first
       </div>
 
-      <input type="text" class="form-control" placeholder="Search (ingredient, quantity, unit, price or store)" ng-model="search" ng-class="{searchWarning: searchWarn}">
-      <button class="btn btn-default" ng-click="clearSearch()">
-        Clear
-      </button>
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search (ingredient, quantity, unit, price or store)" ng-model="search" ng-class="{searchWarning: searchWarn}">
+        <span class="input-group-btn">
+          <button class="btn btn-default" ng-click="clearSearch()">Clear</button>
+        </span>
+      </div>
       <hr>
       <table class="table">
         <thead>
