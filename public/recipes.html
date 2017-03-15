@@ -17,6 +17,12 @@
       <input required class="form-control"  type="text"
       ng-model="recipe.name" ng-show="createNewRecipe"
       placeholder="Recipe name"/>
+      <input required class="form-control"  type="text"
+      ng-model="recipe.person" ng-show="createNewRecipe"
+      placeholder="Serving size (persons)"/>
+
+      <a href="#" ng-show="!createNewRecipe" editable-text="recipe.name" e-label="Recipe name">Recipe: {{ recipe.name }}</a><br>
+      <a href="#" ng-show="!createNewRecipe" editable-text="recipe.person" e-label="Serving size">Serving size: {{ recipe.person }} persons</a>
 
       <table class="table table-condensed">
          <tr>
@@ -42,7 +48,7 @@
              <!-- form -->
              <form editable-form name="rowform" onbeforesave="saveUser($data, user.id)" ng-show="rowform.$visible" class="form-buttons form-inline" shown="inserted == ingredient">
                <button type="submit" ng-disabled="rowform.$waiting" class="btn btn-primary">
-                 save
+                 OK
                </button>
                <button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel()" class="btn btn-default">
                  cancel

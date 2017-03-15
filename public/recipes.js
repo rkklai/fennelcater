@@ -12,7 +12,7 @@ app.controller('RecipesCtrl',  function($scope, $firebaseArray, AngularDB, $uibM
   // add ingredient
   $scope.addIngredient = function(recipe) {
       $scope.inserted = {
-        key: '',
+        key: null,
         quanity: null
       };
 
