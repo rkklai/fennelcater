@@ -26,7 +26,7 @@
 
       <a href="#" ng-show="!createNewRecipe" editable-text="recipe.name" onbeforesave="required($data)" e-label="Name">Recipe: {{ recipe.name }}</a><br>
       <a href="#" ng-show="!createNewRecipe" editable-text="recipe.category" onbeforesave="required($data)" e-label="Category">Category: {{ recipe.category }}</a><br>
-      <a href="#" ng-show="!createNewRecipe" editable-text="recipe.person" onbeforesave="required($data)" e-label="Serving size">Serving size: {{ recipe.person }} persons</a>
+      <a href="#" ng-show="!createNewRecipe" editable-number="recipe.person" onbeforesave="required($data)" e-label="Serving size">Serving size: {{ recipe.person }} persons</a>
 
       <table class="table table-condensed">
          <tr>
