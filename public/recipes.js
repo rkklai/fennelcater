@@ -140,6 +140,8 @@ app.controller('RecipesCtrl',  function($scope, $firebaseArray, AngularDB, $uibM
     else {
       $scope.modalInstance.dismiss("cancel");
     }
+
+    $scope.createNewRecipe = 0;
   };
 
   $scope.openNewRecipe = function () {
@@ -149,6 +151,7 @@ app.controller('RecipesCtrl',  function($scope, $firebaseArray, AngularDB, $uibM
             otherIngredients: '',
             instruction: ''
           };
+    $scope.createNewRecipe = 1;
 
     $scope.modalInstance = $uibModal.open({
       // animation: $ctrl.animationsEnabled,
