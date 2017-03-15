@@ -109,9 +109,13 @@
               <button class="btn btn-default" type="button" ng-click="search=''">Clear</button>
             </span>
           </div>
-          <div class="btn-group">
-            <button class="btn btn-default" type="button" ng-click="order='name';nameReverse=!nameReverse;reverse=nameReverse">Sort by name</button>
-            <button class="btn btn-default" type="button" ng-click="order='category';categoryReverse=!categoyReverse;reverse=categoryReverse">Sort by category</button>
+          <div class="btn-group btn-group-justified" role="group">
+            <div class="btn-group">
+              <button role="button" class="btn btn-default" type="button" ng-click="order='name';nameReverse=!nameReverse;reverse=nameReverse">Sort by name</button>
+            </div>
+            <div class="btn-group">
+              <button role="button" class="btn btn-default" type="button" ng-click="order='category';categoryReverse=!categoryReverse;reverse=categoryReverse">Sort by category</button>
+            </div>
           </div>
       </div>
       <uib-accordion close-others="true">
