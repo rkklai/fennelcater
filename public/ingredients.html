@@ -59,15 +59,14 @@
         <button class="close" data-dismiss="alert" aria-label="close" ng-click="searchWarn=0">&times;</button>
         <strong>Warning!</strong> Duplicate ingredient {{ duplicateIngredientName }}): please edit it in the table or delete it first
       </div>
-
-      <div class="input-group">
-        <input type="text" class="form-control" placeholder="Search (ingredient, quantity, unit, price or store)" ng-model="search" ng-class="{searchWarning: searchWarn}">
-        <span class="input-group-btn">
-          <button class="btn btn-default" ng-click="clearSearch()">Clear</button>
-        </span>
-      </div>
-      <hr>
       <table class="table">
+        <legend>{{ingredients.length}} Ingredients</legend>
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Search (ingredient, quantity, unit, price or store)" ng-model="search" ng-class="{searchWarning: searchWarn}">
+          <span class="input-group-btn">
+            <button class="btn btn-default" ng-click="clearSearch()">Clear</button>
+          </span>
+        </div>
         <thead>
           <tr>
             <th ng-click="orderByMe('name')">Ingredient</th>
