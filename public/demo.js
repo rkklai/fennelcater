@@ -240,6 +240,58 @@ app.service("AngularDB", function($firebaseArray, $firebaseObject, $firebaseStor
     return recipesDB;
   }
 
+  this.getIngredientPrices = function(name, unit) {
+    var expensive = null;
+    var cheap = null;
+    for ( const ingredient of ingredientsDB )
+    {
+      if ( name == ingredient.name && unit == ingredient.unit )
+      {
+        if ( expensive )
+        {
+          if ( ingredient.price / ingredient.quantity > expensive.price / expensive.quantity )
+          {
+              expensive = ingredient;
+          }
+        }
+        else
+        {
+          expensive = ingredient;
+        }
+
+        if ( cheap )
+        {
+          if ( ingredient.price / ingredient.quantity < cheap.price / cheap.quantity )
+          {
+            cheap = ingredient;
+          }
+        }
+        else
+        {
+          cheap = ingredient;
+        }
+      }
+    }
+
+    return { c : cheap, e: expensive };
+  }
+
+  this.getRecipePrices = function(recIngredients) {
+    var expensive = {price: 0, ingredients: []};
+    var cheap = {price: 0, ingredients:[]};
+
+    for ( let ingredient of recIngredients ) {
+      let prices = this.getIngredientPrices( ingredient.name, ingredient.unit );
+
+      expensive.price += prices.e.price / prices.e.quantity * ingredient.quantity;
+      expensive.ingredients.push(prices.e);
+
+      cheap.price += prices.c.price / prices.c.quantity * ingredient.quantity;
+      cheap.ingredients.push(prices.c);
+    }
+
+    return { e: expensive, c: cheap };
+  }
 
   // backups
   this.lastModified = function() {

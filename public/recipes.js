@@ -1,7 +1,7 @@
 /* eslint no-alert: 0 */
 
 
-app.controller('RecipesCtrl',  function($scope, $firebaseArray, AngularDB, $uibModal) {
+app.controller('RecipesCtrl',  function($scope, $firebaseArray, AngularDB, $uibModal, $filter) {
   $scope.recipes = AngularDB.recipes();
   $scope.search = "";
   $scope.order = 'name';
@@ -10,6 +10,8 @@ app.controller('RecipesCtrl',  function($scope, $firebaseArray, AngularDB, $uibM
   $scope.reverse = false;
   $scope.deleteRecipe ="not yet";
   $scope.lastSavedRecipe = { recipe: null, timestamp: null };
+
+  $scope.recipePrices = "Not calculated yet";
 
   $scope.availableIngredients = AngularDB.ingredientsUniq();
 
@@ -51,6 +53,10 @@ app.controller('RecipesCtrl',  function($scope, $firebaseArray, AngularDB, $uibM
     return AngularDB.saveRecipe(x);
   }
 
+  $scope.showPrices = function(recipe) {
+    var prices = AngularDB.getRecipePrices(recipe.ingredients);
+    return '$' + $filter('number')(prices.c.price, 2) + ' - $' + $filter('number')(prices.e.price, 2);
+  }
 
   $scope.clearSearch = function() {
     $scope.search = "";

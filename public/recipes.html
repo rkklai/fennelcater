@@ -111,10 +111,10 @@
           </div>
           <div class="btn-group btn-group-justified" role="group">
             <div class="btn-group">
-              <button role="button" class="btn btn-default" type="button" ng-click="order='name';nameReverse=!nameReverse;reverse=nameReverse">Sort by name</button>
+              <button role="button" class="btn btn-info" type="button" ng-click="order='name';nameReverse=!nameReverse;reverse=nameReverse">Sort by name</button>
             </div>
             <div class="btn-group">
-              <button role="button" class="btn btn-default" type="button" ng-click="order='category';categoryReverse=!categoryReverse;reverse=categoryReverse">Sort by category</button>
+              <button role="button" class="btn btn-info" type="button" ng-click="order='category';categoryReverse=!categoryReverse;reverse=categoryReverse">Sort by category</button>
             </div>
           </div>
       </div>
@@ -123,11 +123,15 @@
             heading="{{recipe.name}} - {{ recipe.category || 'uncategorized' }}"
             ng-repeat="recipe in recipes | filter:search | orderBy:order:reverse">
            <div id="tpl-content" ng-include src="'commonRecipe.html'"></div>
+           <div>
+               Prices: {{ recipePrices }}
+           </div>
            <div class="alert alert-success alert-dismissable fade in" ng-show="lastSavedRecipe.recipe == recipe">
              <button class="close" data-dismiss="alert" aria-label="close" ng-click="lastSavedRecipe.recipe=null">&times;</button>
              <strong>Success!</strong> Saved recipe {{ recipe.name }} on {{ lastSavedRecipe.timestamp | date:'yyyy-MM-dd HH:mm:ss' }}
            </div>
            <div>
+               <button class="btn btn-success" type="button" ng-click="recipePrices=showPrices(recipe)">Calculate prices</button>
                <button class="btn btn-primary" type="button" ng-click="saveRecipe(recipe)" ng-disabled="! ( recipe.name && recipe.person && recipe.category && recipe.ingredients.length )">Save</button>
                <button class="btn btn-danger" type="button" ng-click="openDeleteRecipe(recipe)">Delete</button>
            </div>
