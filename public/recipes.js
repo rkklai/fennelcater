@@ -11,7 +11,7 @@ app.controller('RecipesCtrl',  function($scope, $firebaseArray, AngularDB, $uibM
   $scope.deleteRecipe ="not yet";
   $scope.lastSavedRecipe = { recipe: null, timestamp: null };
 
-  $scope.recipePrices = "Not calculated yet";
+  $scope.recipePrices = null;
 
   $scope.availableIngredients = AngularDB.ingredientsUniq();
 
@@ -55,14 +55,24 @@ app.controller('RecipesCtrl',  function($scope, $firebaseArray, AngularDB, $uibM
 
   $scope.showPrices = function(recipe) {
     var prices = AngularDB.getRecipePrices(recipe.ingredients);
-    return '$' + $filter('number')(prices.c.price, 2) + ' - $' + $filter('number')(prices.e.price, 2);
+    $scope.recipePrices = '$' + $filter('number')(prices.c.price, 2) + ' - $' + $filter('number')(prices.e.price, 2);
+    prices.recipe = recipe;
+    $scope.ingredientList = prices;
   }
 
-  $scope.clearSearch = function() {
-    $scope.search = "";
-    $scope.searchWarn = 0;
-    $scope.addedIngredient = 0;
-  }
+
+
+  $scope.openIngredientList = function () {
+    $scope.modalInstance = $uibModal.open({
+      // animation: $ctrl.animationsEnabled,
+      ariaLabelledBy: 'modal-title',
+      ariaDescribedBy: 'modal-body',
+      templateUrl: 'showIngredientList.html',
+      //    controller: 'ModalInstanceCtrl',
+      //    controllerAs: '$ctrl',
+      scope: $scope
+    });
+  };
 
   $scope.dismissDelete = function(recipe) {
     if ( recipe )

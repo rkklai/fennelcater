@@ -1,4 +1,29 @@
 <div class="scrollable">
+  <script type="text/ng-template" id="showIngredientList.html">
+      <div class="modal-header">
+          <h3 class="modal-title" id="modal-title">Ingredient list</h3>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <div class="list-group">
+          <strong>Cheap ingredients:</strong>
+          <div ng-repeat="ingredient in ingredientList.c.ingredients">
+            <div class="list-group-item">
+                {{ ingredient.name + '($' + ingredient.price + '/' + ingredient.quantity + v.unit + '@' + ingredient.store }})
+            </div>
+          </div>
+          <strong>Expensive ingredients:</strong>
+          <div ng-repeat="ingredient in ingredientList.e.ingredients">
+            <div class="list-group-item">
+                {{ ingredient.name + '($' + ingredient.price + '/' + ingredient.quantity + v.unit + '@' + ingredient.store }})
+            </div>
+          </div>
+        <div>
+      </div>
+      <div class="modal-footer">
+          <button class="btn btn-success" type="button" ng-click="dismissDelete()">Close</button>
+      </div>
+  </script>
+
   <script type="text/ng-template" id="deleteRecipe.html">
       <div class="modal-header">
           <h3 class="modal-title" id="modal-title">Warning!</h3>
@@ -124,16 +149,24 @@
             ng-repeat="recipe in recipes | filter:search | orderBy:order:reverse">
            <div id="tpl-content" ng-include src="'commonRecipe.html'"></div>
            <div>
-               Prices: {{ recipePrices }}
+               <div ng-show="recipe == ingredientList.recipe">
+                 <strong>Prices: </strong><a ng-click="openIngredientList()">{{ recipePrices || 'Not calculated yet'}}</a>
+               </div>
+               <div ng-show="recipe != ingredientList.recipe">
+                 <strong>Prices: </strong>Not calculated yet
+               </div>
            </div>
+           <hr>
            <div class="alert alert-success alert-dismissable fade in" ng-show="lastSavedRecipe.recipe == recipe">
              <button class="close" data-dismiss="alert" aria-label="close" ng-click="lastSavedRecipe.recipe=null">&times;</button>
              <strong>Success!</strong> Saved recipe {{ recipe.name }} on {{ lastSavedRecipe.timestamp | date:'yyyy-MM-dd HH:mm:ss' }}
            </div>
-           <div>
-               <button class="btn btn-success" type="button" ng-click="recipePrices=showPrices(recipe)">Calculate prices</button>
+           <div class="button-group">
+               <button class="btn btn-success pull-left" type="button" ng-click="showPrices(recipe)">Calculate prices</button>
+               <span class="pull-right">
                <button class="btn btn-primary" type="button" ng-click="saveRecipe(recipe)" ng-disabled="! ( recipe.name && recipe.person && recipe.category && recipe.ingredients.length )">Save</button>
                <button class="btn btn-danger" type="button" ng-click="openDeleteRecipe(recipe)">Delete</button>
+             </span>
            </div>
         </div>
       </uib-accordion>
